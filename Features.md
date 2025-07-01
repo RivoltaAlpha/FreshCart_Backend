@@ -1,9 +1,8 @@
 # 1. **Authentication & Authorization System**
 
 ````typescript
-// User Management
 interface User {
-  id: string;
+  user_id: string;
   email: string;
   password: string; // hashed
   role: 'customer' | 'store' | 'driver' | 'admin';
@@ -27,7 +26,7 @@ interface UserProfile {
 
 ````typescript
 interface Product {
-  id: string;
+  product_id: string;
   name: string;
   description: string;
   category: string;

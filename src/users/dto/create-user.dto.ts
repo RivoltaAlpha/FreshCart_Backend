@@ -51,6 +51,16 @@ export class CreateUserDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
+  phone_number?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
   hashedRefreshToken?: string;
 
   @ApiProperty()

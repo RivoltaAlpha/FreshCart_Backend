@@ -28,6 +28,12 @@ export class User {
   @Column({ type: 'enum', enum: Role })
   role: Role;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phone_number?: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  address?: string | null;
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   hashedRefreshToken?: string | null;
 

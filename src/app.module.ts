@@ -18,6 +18,9 @@ import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { CacheableMemory} from 'cacheable';
 import { createKeyv, Keyv } from '@keyv/redis';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { InventoriesModule } from './inventories/inventories.module';
+import { CategoriesModule } from './categories/categories.module';
+import { StoreModule } from './store/store.module';
 
 
 @Module({
@@ -27,6 +30,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
     PaymentsModule,
     OrdersModule,
     UsersModule,
+    InventoriesModule,
+    CategoriesModule,
     AuthModule,
     DatabaseModule,
     TypeOrmModule.forFeature([User]),
@@ -68,6 +73,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
         };
       },
     }),
+    StoreModule,
   ],
   controllers: [AppController],
   providers: [

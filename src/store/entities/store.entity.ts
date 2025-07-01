@@ -1,40 +1,37 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Product {
+export class Store {
   @PrimaryGeneratedColumn()
-  product_id: number;
+  store_id: number;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
   @Column({ type: 'varchar', length: 255 })
+  location: string;
+
+  @Column({ type: 'int' })
+  owner: number;
+
+  @Column({ type: 'varchar', length: 255 })
   description: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
-  price: number;
-
   @Column({ type: 'varchar', length: 255 })
-  stock_quantity: number;
+  contact_info: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   image_url: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  store_id: number;
-
-  @Column({ type: 'varchar', length: 255 })
-  category: string;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  address: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
-
+  created_at: Date;
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: Date;
-
-  
+  updated_at: Date;
 }
