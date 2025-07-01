@@ -1,0 +1,65 @@
+# Multi-stage production Dockerfile with security best practices
+# use nodejs 20 alpine as base image
+FROM node:20-alpine AS  builder
+
+# install pnpm globally
+RUN npm install -g pnpm
+
+# set working directory
+WORKDIR /app
+
+# copy package.json and pnpm-lock.yaml
+COPY package.json pnpm-lock.yaml ./
+
+# install dependencies
+RUN pnpm install --frozen-lockfile 
+
+# copy the rest of the application code
+COPY . .
+
+# build the application
+RUN pnpm run build
+
+# Copy index.html from public to dist 
+RUN pnpm run postbuild
+
+# production stage
+FROM node:20-alpine AS production
+
+# install pnpm globally and curl for healthcheck
+RUN npm install -g pnpm && apk add --no-cache curl
+
+# Create a group and a non-root user
+RUN addgroup -g 1001 -S nestjs && adduser -S nestjs -u 1001 -G nestjs
+# set working directory
+WORKDIR /app
+
+# copy package files 
+COPY package.json pnpm-lock.yaml ./
+
+# install production dependencies
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
+
+# Run postbuild to copy index.html to dist
+RUN pnpm run postbuild
+
+# create applogs directly for logging and set ownership
+RUN mkdir -p /app/applogs
+RUN chown -R nestjs:nestjs /app
+
+# switch to the non-root user
+USER nestjs
+
+# expose the port the app runs on
+EXPOSE 8000
+
+# healthcheck to ensure the app is running
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8000/ || exit 1
+
+# start the application
+CMD ["node","dist/main.js"]

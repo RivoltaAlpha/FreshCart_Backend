@@ -1,0 +1,105 @@
+services:
+  # PostgreSQL Database Service
+  freshCart-db:
+    image: postgres:15-alpine
+    container_name: freshCart-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: freshCart-db
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8'
+    ports:
+      - '5432:5432'
+    networks:
+      - app-network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis Cache Service
+  redis:
+    image: redis:8.0-alpine
+    container_name: redis-freshCart
+    restart: unless-stopped
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your_secure_redis_password}
+    command:
+      [
+        'redis-server',
+        '--requirepass',
+        '${REDIS_PASSWORD:-your_secure_redis_password}',
+      ]
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'redis-cli',
+          '-a',
+          '${REDIS_PASSWORD:-your_secure_redis_password}',
+          'ping',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # NestJS Application Service
+  freshcart-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: freshcart-app
+    ports:
+      - '8000:8000'
+    environment:
+      - NODE_ENV=development
+      - PORT=8000
+      - DB_HOST=freshCart-db
+      - DB_PORT=5432
+      - DB_NAME=freshCart-db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - DB_SYNC=true
+      - DB_LOGGING=true
+      - DATABASE_URL=postgresql://neondb_owner:npg_yiPM3hoCcl7J@ep-tiny-mouse-a86rzwjo-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-your_secure_redis_password}@redis:6379
+      - JWT_ACCESS_TOKEN_SECRET=${JWT_ACCESS_TOKEN_SECRET:-Coding123}
+      - JWT_ACCESS_TOKEN_EXPIRES_IN=${JWT_ACCESS_TOKEN_EXPIRES_IN:-60m}
+      - JWT_REFRESH_TOKEN_SECRET=${JWT_REFRESH_TOKEN_SECRET:-Coding123}
+      - JWT_REFRESH_TOKEN_EXPIRES_IN=${JWT_REFRESH_TOKEN_EXPIRES_IN:-7d}
+      - THROTTLER_TTL=${THROTTLER_TTL:-6000}
+      - THROTTLER_LIMIT=${THROTTLER_LIMIT:-100}
+    depends_on:
+      redis:
+        condition: service_healthy
+      freshCart-db:
+        condition: service_healthy
+    networks:
+      - app-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  pgdata:
+    name: freshCart-pgdata
+    driver: local
+  redis-data:
+    name: freshCart-redis-data
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
