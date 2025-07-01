@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fresh Cart API</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: hsl(240, 100%, 90%);
+        text-align: center;
+        padding: 50px;
+        margin: 0;
+      }
+      .container {
+        margin: 40px auto;
+        padding: 60px 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 8px 0 rgba(0,0,0,0.08);
+        background-color: rgba(138, 65, 172, 0.094);
+        max-width: 700px;
+      }
+      h1 {
+        color: #222;
+      }
+      p {
+        color: #1b1a1a;
+      }
+      .emoji {
+        font-size: 2em;
+        margin-bottom: 10px;
+      }
+      .cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 24px;
+        margin: 40px auto 30px auto;
+        max-width: 1200px;
+      }
+      .role-card {
+        box-shadow: 0 0 8px 0 rgba(0,0,0,0.08);
+        background-color: rgba(38, 7, 53, 0.184);
+        border-radius: 12px;
+        padding: 28px 22px 22px 22px;
+        width: 260px;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        transition: transform 0.15s;
+        border: 2px solid #e6e6fa;
+      }
+      .role-card:hover {
+        transform: translateY(-4px) scale(1.03);
+        box-shadow: 0 6px 16px 0 rgba(138,65,172,0.13);
+      }
+      .role-title {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #8a41ac;
+        margin-bottom: 10px;
+      }
+      .role-list {
+        text-align: left;
+        padding-left: 18px;
+        color: #333;
+        font-size: 1em;
+        margin: 0;
+      }
+      .role-list li {
+        margin-bottom: 8px;
+        position: relative;
+        padding-left: 20px;
+      }
+      .swagger-btn {
+        display: inline-block;
+        margin: 30px auto 0 auto;
+        padding: 16px 38px;
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #fff;
+        background: linear-gradient(90deg, #8a41ac 60%, #0066cc 100%);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 2px 8px 0 rgba(138,65,172,0.10);
+        text-decoration: none;
+        transition: background 0.2s, transform 0.1s;
+      }
+      .swagger-btn:hover {
+        background: linear-gradient(90deg, #0066cc 60%, #8a41ac 100%);
+        transform: scale(1.04);
+      }
+    
+      @media (max-width: 900px) {
+        .cards-container {
+          flex-direction: column;
+          align-items: center;
+        }
+        .role-card {
+          width: 90%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="emoji">📦🗃️📊</div>
+      <h1>Welcome to Inventory Management API</h1>
+      <p>Explore the available endpoints and user roles below.</p>
+    </div>
+    
+    <a class="swagger-btn" href="/api/docs" target="_blank">View Swagger API Docs</a>
+
+    <div class="cards-container">
+      <div class="role-card">
+        <div class="role-title">Admin</div>
+        <ul class="role-list">
+          <li>Manage users and roles</li>
+          <li>Manage all products, categories, suppliers, warehouses</li>
+          <li>View/manage all orders, transactions, reports</li>
+          <li>Set pricing, discounts, promotions</li>
+          <li>Full system access</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="role-title">Manager</div>
+        <ul class="role-list">
+          <li>View/approve/reject orders</li>
+          <li>View sales & inventory reports</li>
+          <li>Oversee inventory & warehouse ops</li>
+          <li>Coordinate sales, warehouse, suppliers</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="role-title">Warehouse</div>
+        <ul class="role-list">
+          <li>View/update inventory levels</li>
+          <li>Manage product storage & stock</li>
+          <li>Process shipments & orders</li>
+          <li>Track inventory across warehouses</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="role-title">Sales</div>
+        <ul class="role-list">
+          <li>View products & inventory</li>
+          <li>Create/manage customer orders</li>
+          <li>Track order status</li>
+          <li>Shipping orders</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="role-title">Supplier</div>
+        <ul class="role-list">
+          <li>View/update own product listings</li>
+          <li>Manage stock supplied to warehouse</li>
+          <li>View orders for their products</li>
+          <li>Update product availability & pricing</li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
