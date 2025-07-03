@@ -4,7 +4,6 @@ import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inventory } from './entities/inventory.entity';
 import { Repository } from 'typeorm';
-import { Warehouse } from 'src/warehouses/entities/warehouse.entity';
 import { Product } from 'src/products/entities/product.entity';
 
 @Injectable()
@@ -14,8 +13,6 @@ export class InventoriesService {
     private inventoryRepository: Repository<Inventory>,
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
-    @InjectRepository(Warehouse)
-    private warehouseRepository: Repository<Warehouse>,
   ) {}
 
   async create(createInventoryDto: CreateInventoryDto) {
@@ -29,13 +26,6 @@ export class InventoriesService {
     }
     inventory.product = product;
 
-    // Fetch and assign the warehouse entity
-    const warehouse = await this.warehouseRepository.findOneBy({ warehouse_id: createInventoryDto.warehouse_id });
-    if (!warehouse) {
-      throw new Error(`Warehouse with id ${createInventoryDto.warehouse_id} not found`);
-    }
-    inventory.warehouse = warehouse;
-
     return this.inventoryRepository.save(inventory);
   }
 
@@ -45,10 +35,6 @@ export class InventoriesService {
 
   findOne(id: number) {
     return this.inventoryRepository.findOneBy({ inventory_id: id });
-  }
-
-  update(id: number, updateInventoryDto: UpdateInventoryDto) {
-    return this.inventoryRepository.update(id, updateInventoryDto);
   }
 
   remove(id: number) {
@@ -65,11 +51,6 @@ export class InventoriesService {
       select: {
         inventory_id: true,
         stock_qty: true,
-        warehouse: {
-          warehouse_id: true,
-          location: true,
-          name: true,
-        },
         product: {
           name: true,
           price: true,
@@ -78,26 +59,6 @@ export class InventoriesService {
     })
 
     return inventory;
-  }
-
-  async inventoryByWarehouse(warehouse_id: number) {
-    return this.inventoryRepository.find({
-      where: { warehouse: { warehouse_id } },
-      relations: ['warehouse', 'product'],
-      select: {
-        inventory_id: true,
-        stock_qty: true,
-        warehouse: {
-          warehouse_id: true,
-          location: true,
-          name: true,
-        },
-        product: {
-          name: true,
-          price: true,
-        },
-      },
-    });
   }
 
     // Update Product Stock

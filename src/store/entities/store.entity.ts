@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Inventory } from 'src/inventories/entities/inventory.entity';
+import { Product } from 'src/products/entities/product.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Store {
@@ -34,4 +36,12 @@ export class Store {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updated_at: Date;
+
+  @OneToMany(() => Inventory, (inventory) => inventory.store)
+  inventories: Inventory[];
+
+  // products
+  @OneToMany(() => Product, (product) => product.store)
+  products: Product[];
+
 }

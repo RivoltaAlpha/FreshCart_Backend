@@ -1,5 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
 import { OrderStatus } from "../dto/create-order.dto";
+import { User } from "src/users/entities/user.entity";
+import { Product } from "src/products/entities/product.entity";
 
 @Entity()
 export class Order {
@@ -23,4 +25,12 @@ export class Order {
 
   @Column({ type: 'varchar', length: 255 })
   delivery_address: string;
+
+    @ManyToOne(() => User, (user) => user.orders)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @ManyToMany(() => Product, (product) => product.orders)
+  @JoinTable()
+  products: Relation<Product[]>;
 }

@@ -47,9 +47,9 @@ export class User {
   })
   updatedAt: Date;
 
-  // @OneToMany(() => Order, (order) => order.user, {
-  //   cascade: true,
-  //   onDelete: 'CASCADE',
-  // })
-  // orders: Order[];
+  @OneToMany(() => Order, (order) => order.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  orders: Order[];
 }

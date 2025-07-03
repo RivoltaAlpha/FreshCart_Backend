@@ -21,6 +21,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { InventoriesModule } from './inventories/inventories.module';
 import { CategoriesModule } from './categories/categories.module';
 import { StoreModule } from './store/store.module';
+import { ProfileModule } from './profile/profile.module';
+import { ProfileModule } from './profile/profile.module';
 
 
 @Module({
@@ -74,6 +76,7 @@ import { StoreModule } from './store/store.module';
       },
     }),
     StoreModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [

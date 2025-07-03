@@ -1,4 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Category } from 'src/categories/entities/category.entity';
+import { Inventory } from 'src/inventories/entities/inventory.entity';
+import { Order } from 'src/orders/entities/order.entity';
+import { Store } from 'src/store/entities/store.entity';
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 
 @Entity()
 export class Product {
@@ -23,8 +27,6 @@ export class Product {
   @Column({ type: 'varchar', length: 255 })
   store_id: number;
 
-  @Column({ type: 'varchar', length: 255 })
-  category: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
@@ -35,6 +37,26 @@ export class Product {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+  // holds the category_id as a foreign key
+  @ManyToOne(() => Category, (category) => category.products, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
 
-  
+  // holds the supplier_id as a foreign key
+  @ManyToOne(() => Store, (store) => store.products, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'store_id' })
+  store: Store;
+
+  @ManyToOne(() => Inventory, (inventory) => inventory.product)
+  inventories: Inventory[];
+
+  @ManyToMany(() => Order, (order) => order.products)
+  orders: Relation<Order[]>;
+
 }

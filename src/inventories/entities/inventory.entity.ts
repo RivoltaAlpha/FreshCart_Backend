@@ -26,17 +26,17 @@ export class Inventory {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  // @ManyToOne(() => Product, (product) => product.inventories, {
-  //   cascade: true,
-  //   onDelete: 'CASCADE',
-  // })
-  // @JoinColumn({ name: 'product_id' })
-  // product: Product;
+  @ManyToOne(() => Product, (product) => product.inventories, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
 
-  // @ManyToOne(() => Store, (store) => store.inventories, {
-  //   cascade: true,
-  //   onDelete: 'CASCADE',
-  // })
-  // @JoinColumn({ name: 'store_id' })
-  // store: Store;
+  @ManyToOne(() => Store, (store) => store.inventories, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'store_id' })
+  store: Store;
 }
