@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { Role, User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -12,59 +12,122 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    const user = this.usersRepository.create(createUserDto);
-    return this.usersRepository.save(user);
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const user = this.usersRepository.create({
+      ...createUserDto,
+      role: createUserDto.role as Role, 
+    });
+    return await this.usersRepository.save(user);
   }
 
-  findAll() {
-    return this.usersRepository.find({
+  async getUserProfile(userId: number) {
+    return this.usersRepository.findOne({
+      where: { user_id: userId },
+      relations: ['profile'],
       select: {
         user_id: true,
-        first_name: true,
-        last_name: true,
         email: true,
         role: true,
-      },
-      order: {
-        user_id: 'ASC',
+        profile: {
+          first_name: true,
+          last_name: true,
+          phone_number: true,
+        },
       },
     });
   }
 
-  // findOne(id: number) {
-  //   return this.usersRepository.findOneBy({ user_id: id });
-  // }
-
-  findOne(userId: number) {
-  return this.usersRepository.findOne({ where: { user_id: userId } });
-}
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return this.usersRepository.update(id, updateUserDto);
+  async findAll(): Promise<User[]> {
+    const users = await this.usersRepository.find({
+      relations: ['profile'],
+      select: {
+        user_id: true,
+        email: true,
+        role: true,
+        profile: {
+          first_name: true,
+          last_name: true,
+          phone_number: true,
+        },
+      },
+    });
+    if (!users || users.length === 0) {
+      throw new Error('No users found');
+    }
+    return users;
   }
 
-  remove(id: number) {
-    return this.usersRepository.delete(id);
+  async findOne(userId: number): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { user_id: userId },
+      relations: ['profile', 'profile.addresses'],
+      select: {
+        user_id: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        profile: {
+          profile_id: true,
+          first_name: true,
+          last_name: true,
+          phone_number: true,
+          addresses: {
+            address_id: true,
+            street: true,
+            city: true,
+            state: true,
+            postal_code: true,
+            country: true,
+            type: true,
+            isDefault: true,
+          },
+        },
+      },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+    return user;
   }
-  // user orders
-  // async userOrders(userId: number) {
-  //   return this.usersRepository.find({
-  //     where: { user_id: userId },
-  //     relations: ['orders'],
-  //     select: {
-  //       user_id: true,
-  //       first_name: true,
-  //       last_name: true,
-  //       email: true,
-  //       orders: {
-  //         order_id: true,
-  //         total_price: true,
-  //         status: true,
-  //       },
-  //     },
-  //   });
-  // }
+
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.findOne(id);
+
+    Object.assign(user, updateUserDto);
+    const updatedUser = await this.usersRepository.save(user);
+    return updatedUser;
+  }
+
+  async remove(id: number): Promise<void> {
+    const user = await this.findOne(id);
+    await this.usersRepository.remove(user);
+  }
+
+  async userOrders(user_id: number) {
+    const user = await this.usersRepository.findOne({
+      where: { user_id: user_id },
+      relations: ['orders', 'profile'],
+      select: {
+        user_id: true,
+        email: true,
+        profile: {
+          first_name: true,
+          last_name: true,
+        },
+        orders: {
+          order_id: true,
+          status: true,
+          total_amount: true,
+
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${user_id} not found`);
+    }
+
+    return user;
+  }
 }
-
-

@@ -24,16 +24,6 @@ export class CreateUserDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
-  first_name: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  last_name: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
   @IsEmail()
   email: string;
 
@@ -51,16 +41,6 @@ export class CreateUserDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  phone_number?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  address?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
   hashedRefreshToken?: string;
 
   @ApiProperty()
@@ -72,4 +52,9 @@ export class CreateUserDto {
   @IsOptional()
   @IsDate()
   updated_at: Date;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  profile_id: number;
 }

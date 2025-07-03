@@ -1,5 +1,7 @@
+import { join } from 'path';
 import { Order } from 'src/orders/entities/order.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Profile } from 'src/profile/entities/profile.entity';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum Role {
   Admin = 'Admin',
@@ -13,11 +15,8 @@ export class User {
   @PrimaryGeneratedColumn()
   user_id: number;
 
-  @Column({ type: 'varchar', length: 255 })
-  first_name: string;
-
-  @Column({ type: 'varchar', length: 255 })
-  last_name: string;
+  @Column({ type: 'int', unique: true })
+  profile_id: number;
 
   @Column({ unique: true, type: 'varchar', length: 255 })
   email: string;
@@ -27,12 +26,6 @@ export class User {
 
   @Column({ type: 'enum', enum: Role })
   role: Role;
-
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  phone_number?: string | null;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  address?: string | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   hashedRefreshToken?: string | null;
@@ -52,4 +45,11 @@ export class User {
     onDelete: 'CASCADE',
   })
   orders: Order[];
+
+  @OneToOne(() => Profile, (profile) => profile.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'profile_id', referencedColumnName: 'profile_id' })
+  profile: Profile;
 }
