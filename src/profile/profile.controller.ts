@@ -12,14 +12,9 @@ export class ProfileController {
     return this.profileService.create(createProfileDto);
   }
 
-  @Get()
-  findAll() {
-    return this.profileService.findAll();
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.profileService.findOne(+id);
+    return this.profileService.findByUserId(+id);
   }
 
   @Patch(':id')
