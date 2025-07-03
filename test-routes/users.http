@@ -1,0 +1,50 @@
+### 
+@url = http://localhost:8000
+@token=kyour_generated_token_here
+
+### Base URL
+GET {{url}}/users/all
+Authorization: Bearer {{token}}
+
+### get User
+
+GET {{url}}/users/me
+Authorization: Bearer {{token}}
+
+### get by id
+GET {{url}}/users/1
+Authorization: Bearer {{token}}
+
+### Create User
+POST {{url}}/users/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "email": "<user_email>",
+  "name": "<user_name>",
+  "password": "<user_password>"
+}
+
+### Update User
+PUT {{url}}/users/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "email": "<user_email>",
+  "name": "<user_name>",
+  "password": "<user_password>"
+}
+
+### Delete User
+DELETE {{url}}/users/1
+Authorization: Bearer {{token}}
+
+### Get User Profile
+GET {{url}}/users/profile/1
+Authorization: Bearer {{token}}
+
+# get user orders
+GET {{url}}/users/orders/1
+Authorization: Bearer {{token}}
