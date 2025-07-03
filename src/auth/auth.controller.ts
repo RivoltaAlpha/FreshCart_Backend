@@ -13,6 +13,7 @@ import { RtGuard } from './guards/rt.guards';
 import { Public } from './decorators/public.decorator';
 import { Request } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { LoginDto } from './dto/signin.dto';
 
 export interface RequestWithUser extends Request {
   user: {
@@ -36,8 +37,8 @@ export class AuthController {
 
   @Public()
   @Post('signin')
-  findOne(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.SignIn(createAuthDto);
+  findOne(@Body() loginDto: LoginDto) {
+    return this.authService.SignIn(loginDto);
   }
 
   @UseGuards(AtGuard) // This endpoint requires authentication and you use the access token guard
