@@ -1,63 +1,74 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsEmail,
   IsNotEmpty,
   IsString,
   IsDate,
-  IsEnum,
   IsNumber,
   IsOptional,
 } from 'class-validator';
 export class CreateStoreDto {
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  store_id: number;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsNumber()
-    store_id: number;
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  owner_id: number; // user_id of the store owner
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    name: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  name: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    location: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  description: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsNumber()
-    owner: number; // user_id of the store owner
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  contact_info: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    description: string;
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  country: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    contact_info: string;
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  town: string;
 
-    @ApiProperty()
-    @IsOptional()
-    @IsString()
-    image_url?: string;
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  city: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    address: string;
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  image_url: string;
 
-    @ApiProperty()
-    @IsOptional()
-    @IsDate()
-    created_at: Date;
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  rating: string;
 
-    @ApiProperty()
-    @IsOptional()
-    @IsDate()
-    updated_at: Date;
-    
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  total_reviews: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsDate()
+  created_at: Date;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsDate()
+  updated_at: Date;
 }

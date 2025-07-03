@@ -48,4 +48,11 @@ export class Product {
 
   @ManyToMany(() => Order, (order) => order.products)
   orders: Relation<Order[]>;
+
+  @ManyToOne(() => Product, (product) => product.store_id, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'store_id' })
+  store: Relation<Product>;
 }

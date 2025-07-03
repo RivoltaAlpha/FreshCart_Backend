@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGe
 import { OrderStatus } from "../dto/create-order.dto";
 import { User } from "src/users/entities/user.entity";
 import { Product } from "src/products/entities/product.entity";
+import { Store } from "src/store/entities/store.entity";
 
 @Entity()
 export class Order {
@@ -33,4 +34,8 @@ export class Order {
   @ManyToMany(() => Product, (product) => product.orders)
   @JoinTable()
   products: Relation<Product[]>;
+
+  @ManyToOne(() => Store, (store) => store.orders)
+  @JoinColumn({ name: 'store_id' })
+  store: Store;
 }

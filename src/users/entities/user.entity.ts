@@ -1,6 +1,6 @@
-import { join } from 'path';
 import { Order } from 'src/orders/entities/order.entity';
 import { Profile } from 'src/profile/entities/profile.entity';
+import { Store } from 'src/store/entities/store.entity';
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum Role {
@@ -49,4 +49,10 @@ export class User {
   @OneToOne(() => Profile, (profile) => profile.user)
   @JoinColumn({ name: 'profile_id'})
   profile: Profile;
+
+  @OneToMany(() => Store, (store) => store.owner, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  stores: Store[];
 }
