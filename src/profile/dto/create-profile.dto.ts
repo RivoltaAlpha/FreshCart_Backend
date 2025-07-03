@@ -24,11 +24,6 @@ export class CreateProfileDto {
   phone_number: string;
 
   @ApiProperty()
-  @IsOptional()
-  @IsArray()
-  address?: number[];
-
-  @ApiProperty()
   @IsNotEmpty()
   user_id: number;
 

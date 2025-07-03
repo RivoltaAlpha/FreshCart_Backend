@@ -32,6 +32,7 @@ import { AddressesModule } from './addresses/addresses.module';
       envFilePath: '.env',
     }),
     DatabaseModule,
+    TypeOrmModule.forFeature([User]), 
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

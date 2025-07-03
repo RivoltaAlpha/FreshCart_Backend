@@ -1,6 +1,7 @@
 import { Profile } from 'src/profile/entities/profile.entity';
-import { Column, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
+@Entity()
 export class Address {
   @PrimaryGeneratedColumn()
   address_id: number;
