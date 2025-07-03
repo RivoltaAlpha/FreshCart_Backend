@@ -1,9 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export enum OrderStatus {
   pending = 'pending',
   shipped = 'shipped',
+  in_transit = 'in_transit',
+  cancelled = 'cancelled',
   delivered = 'delivered',
 }
 
@@ -39,4 +47,8 @@ export class CreateOrderDto {
   @IsOptional()
   @IsDate()
   created_at: Date;
+
+  @ApiProperty({ type: [Number] })
+  @IsNotEmpty()
+  products: { product_id: number }[];
 }
