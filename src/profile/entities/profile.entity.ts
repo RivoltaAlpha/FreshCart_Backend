@@ -1,6 +1,6 @@
 import { Address } from 'src/addresses/entities/address.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Profile {
@@ -39,6 +39,7 @@ export class Profile {
         cascade: true,
         onDelete: 'CASCADE',
     })
+    @JoinColumn({ name: 'user_id'})
     user: User;
 
     @OneToMany(() => Address, (address) => address.profile, {

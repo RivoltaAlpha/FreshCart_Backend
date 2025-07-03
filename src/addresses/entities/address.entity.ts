@@ -4,6 +4,9 @@ import { Column, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 export class Address {
   @PrimaryGeneratedColumn()
   address_id: number;
+  
+  @Column({ type: 'int' })
+  profileId: number;
 
   @Column({ type: 'varchar', length: 100 })
   street: string;
@@ -42,8 +45,9 @@ export class Address {
   })
   updatedAt: Date;
 
-  profileId: number;
-  @ManyToOne(() => Profile, (profile) => profile.addresses)
-  @JoinColumn({ name: 'profile_id', referencedColumnName: 'profile_id' })
+  @ManyToOne(() => Profile, (profile) => profile.addresses,{
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'profile_id'})
   profile: Profile;
 }

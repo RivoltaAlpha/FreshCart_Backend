@@ -46,10 +46,7 @@ export class User {
   })
   orders: Order[];
 
-  @OneToOne(() => Profile, (profile) => profile.user, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'profile_id', referencedColumnName: 'profile_id' })
+  @OneToOne(() => Profile, (profile) => profile.user)
+  @JoinColumn({ name: 'profile_id'})
   profile: Profile;
 }
