@@ -39,9 +39,4 @@ export class Store {
 
   @OneToMany(() => Inventory, (inventory) => inventory.store)
   inventories: Inventory[];
-
-  // products
-  @OneToMany(() => Product, (product) => product.store)
-  products: Product[];
-
 }
