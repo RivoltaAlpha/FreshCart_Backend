@@ -141,8 +141,8 @@ POST {{url}}/auth/signin
 Content-Type: application/json
 
 {
-  "email": "newcustomer@gmail.com",
-  "password": "Customer@123"
+  "email": "store.owner@gmail.com",
+  "password": "StorePass@123"
 }
 
 ### 3. Get user profile (use token from login response)

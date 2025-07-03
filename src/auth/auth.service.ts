@@ -13,6 +13,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Profile } from 'src/profile/entities/profile.entity';
+import { LoginDto } from './dto/signin.dto';
 
 @Injectable()
 export class AuthService {
@@ -165,9 +166,9 @@ export class AuthService {
     }
   }
 
-  async SignIn(createAuthDto: CreateAuthDto) {
+  async SignIn(loginDto: LoginDto) {
     const foundUser = await this.userRepository.findOne({
-      where: { email: createAuthDto.email },
+      where: { email: loginDto.email },
       relations: ['profile'],
       select: {
         user_id: true,
@@ -185,12 +186,12 @@ export class AuthService {
 
     if (!foundUser) {
       throw new NotFoundException(
-        `User with email ${createAuthDto.email} not found`,
+        `User with email ${loginDto.email} not found`,
       );
     }
 
     const foundPassword = await bcrypt.compare(
-      createAuthDto.password,
+      loginDto.password,
       foundUser.password,
     );
 
