@@ -23,12 +23,12 @@ export interface RequestWithUser extends Request {
 }
 
 @ApiBearerAuth('access-token')
-@ApiTags('Auth') // This groups the endpoints under the 'Auth' tag in Swagger documentation
+@ApiTags('Auth') 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public() // This endpoint is accessible without authentication
+  @Public() 
   @Post('signup')
   create(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.SignUp(createAuthDto);
