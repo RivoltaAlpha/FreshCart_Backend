@@ -19,21 +19,21 @@ export class Address {
 
   @Column({ type: 'varchar', length: 100 })
   country: string;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
-
+  
   @Column({ type: 'enum', enum: ['home', 'work', 'other'], default: 'home' })
   type: string;
-
+  
   @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
   latitude?: number | null;
-
+  
   @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
   longitude?: number | null;
-
+  
   @Column({ type: 'boolean', default: false })
   isDefault: boolean;
+  
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    createdAt: Date;
 
   @Column({
     type: 'timestamp',
