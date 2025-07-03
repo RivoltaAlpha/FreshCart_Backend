@@ -27,20 +27,11 @@ import { AddressesModule } from './addresses/addresses.module';
 
 @Module({
   imports: [
-    ProductsModule,
-    CartModule,
-    PaymentsModule,
-    OrdersModule,
-    UsersModule,
-    InventoriesModule,
-    CategoriesModule,
-    AuthModule,
-    DatabaseModule,
-    TypeOrmModule.forFeature([User]),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
     }),
+    DatabaseModule,
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -75,6 +66,14 @@ import { AddressesModule } from './addresses/addresses.module';
         };
       },
     }),
+    ProductsModule,
+    CartModule,
+    PaymentsModule,
+    OrdersModule,
+    UsersModule,
+    InventoriesModule,
+    CategoriesModule,
+    AuthModule,
     StoreModule,
     ProfileModule,
     AddressesModule,
