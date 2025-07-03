@@ -23,7 +23,6 @@ import { CategoriesModule } from './categories/categories.module';
 import { StoreModule } from './store/store.module';
 import { ProfileModule } from './profile/profile.module';
 import { AddressesModule } from './addresses/addresses.module';
-import { ProfileModule } from './profile/profile.module';
 
 
 @Module({
