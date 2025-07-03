@@ -7,10 +7,10 @@ import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductsService {
-    constructor(
+  constructor(
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
-  ) {}
+  ) { }
   create(createProductDto: CreateProductDto) {
     const product = this.productsRepository.create(createProductDto);
     return this.productsRepository.save(product);
@@ -26,7 +26,7 @@ export class ProductsService {
     });
   }
 
- async update(
+  async update(
     id: number,
     updateProductDto: UpdateProductDto,
   ): Promise<Product | string> {

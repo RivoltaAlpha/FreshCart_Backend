@@ -36,7 +36,7 @@ export class CreateProductDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  category: string;
+  category_id: number;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -46,7 +46,7 @@ export class CreateProductDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  store_id: number;
+  inventory_id: number;
 
   @ApiProperty()
   @IsOptional()
