@@ -1,0 +1,226 @@
+@url = http://localhost:8000
+@storeToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUsImVtYWlsIjoic3RvcmUub3duZXJAZ21haWwuY29tIiwicm9sZSI6IlN0b3JlIiwiaWF0IjoxNzUxNjE2Njc3LCJleHAiOjE3NTE2MjAyNzd9.-sbVAdOAJjbdZyDJCADreQ9uYCrxQP76sdUQxoxqC20
+@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzUxNjE2OTcxLCJleHAiOjE3NTE2MjA1NzF9.PVcZjsum9TAyylcVJqTa5iwq0yRZ8Wbb1oXuwj_W4e0
+@customerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoicml1a2lzdGV2ZUBnbWFpbC5jb20iLCJyb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3NTE2MTQxMzAsImV4cCI6MTc1MTYxNzczMH0.3ojl7ptdmC1dfqIOmEfLscGT-g5C4CsILdP0CxzYS0k
+
+### 
+POST {{url}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "store.owner@gmail.com",
+  "password": "StorePass@123"
+}
+
+
+### Variables for test data
+@storeId = 1
+# 1 =fruits 2 =vegetables 3 =dairy 4 =meat 5 =bakery 6 =beverages
+@categoryId = 1
+
+@productId = 1
+
+### 4. Get all categories
+GET {{url}}/stores/all
+Authorization: Bearer {{adminToken}}
+### 4. Get all categories
+GET {{url}}/inventories/all?storeId=2
+Authorization: Bearer {{adminToken}}
+
+### ===================== PRODUCT MANAGEMENT =====================
+
+### 1. Create a new product (Store owner only)
+POST {{url}}/products/create
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "store_id": 2,
+  "category_id": 2,
+  "name": "Fresh Organic Bananas",
+  "description": "Premium organic bananas sourced directly from local farms. Rich in potassium and perfect for a healthy snack.",
+  "price": 150.00,
+  "image_url": "https://example.com/images/organic-bananas.jpg",
+  "weight": 1.0,
+  "unit": "per kg",
+  "review_count": 25,
+  "discount": 10,
+  "rating": 4.8,
+  "initial_quantity": 50,
+  "stock_quantity": 50,
+  "reorder_level": 10,
+  "cost_price": 100.00
+}
+
+### 2. Create another product for testing
+POST {{url}}/products/create
+Authorization: Bearer {{storeToken}}
+Content-Type: application/json
+
+{
+  "store_id": 2,
+  "category_id": 1,
+  "name": "Fresh Tomatoes",
+  "description": "Juicy red tomatoes perfect for cooking and salads",
+  "price": 120.00,
+  "image_url": "https://example.com/images/tomatoes.jpg",
+  "weight": 1.0,
+  "unit": "per kg",
+  "review_count": 25,
+  "discount": 10,
+  "rating": 4.8,
+  "initial_quantity": 50,
+  "stock_quantity": 50,
+  "reorder_level": 10,
+  "cost_price": 100.00
+}
+
+### 3. Get all products
+GET {{url}}/products/all
+Authorization: Bearer {{{{storeToken}}}}
+
+### 4. Get specific product by ID
+GET {{url}}/products/2
+Authorization: Bearer {{adminToken}}
+
+### 5. Get products by store
+GET {{url}}/products/store/2
+Authorization: Bearer {{storeToken}}
+
+### 6. Get products by category
+GET {{url}}/products/category/1
+Authorization: Bearer {{adminToken}}
+
+### 7. Update product (Store owner only)
+PATCH {{url}}/products/1
+Authorization: Bearer {{storeToken}}
+Content-Type: application/json
+
+{
+  "name": "Premium Organic Bananas - Updated",
+  "description": "Updated description with more details about our premium organic bananas"
+}
+
+### 8. Rate a product (Any user)
+POST {{url}}/products/2/rate
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "rating": 4.5
+}
+
+### 9. Delete product (Store owner only)
+DELETE {{url}}/products/2
+Authorization: Bearer {{storeToken}}
+
+### ===================== PRODUCT DISCOVERY & SEARCH =====================
+
+### 10. Get featured products
+GET {{url}}/products/featured
+
+### 11. Search products by name/description
+GET {{url}}/products/search?q=organic&page=1&limit=10
+
+### 12. Get products with filters
+GET {{url}}/products?category={{categoryId}}&organic=true&featured=true&page=1&limit=20
+
+### 13. Get low stock products (Store owner)
+GET {{url}}/products/low-stock?storeId={{storeId}}
+Authorization: Bearer {{storeToken}}
+
+### 14. Get all low stock products (Admin)
+GET {{url}}/products/low-stock
+Authorization: Bearer {{adminToken}}
+
+### ===================== STORE-PRODUCT RELATIONSHIPS =====================
+
+### 15. Get stores selling a specific product
+GET {{url}}/products/{{productId}}/stores
+
+### 16. Add existing product to another store
+POST {{url}}/products/{{productId}}/stores/{{storeId}}
+Authorization: Bearer {{storeToken}}
+Content-Type: application/json
+
+{
+  "stock_qty": 25,
+  "reorder_level": 8,
+  "cost_price": 95.00,
+  "supplier": "Local Distributor"
+}
+
+### 17. Remove product from store
+DELETE {{url}}/products/{{productId}}/stores/{{storeId}}
+Authorization: Bearer {{storeToken}}
+
+### ===================== ANALYTICS & REPORTS =====================
+
+### 18. Get product statistics for store
+GET {{url}}/products/stats?storeId={{storeId}}
+Authorization: Bearer {{storeToken}}
+
+### 19. Get overall product statistics (Admin)
+GET {{url}}/products/stats
+Authorization: Bearer {{adminToken}}
+
+### 20. Get top-rated products
+GET {{url}}/products/top-rated?limit=10
+
+### 21. Get most viewed products
+GET {{url}}/products/most-viewed?limit=10
+
+### ===================== BULK OPERATIONS =====================
+
+### 22. Bulk create products (Store owner)
+POST {{url}}/products/bulk
+Authorization: Bearer {{storeToken}}
+Content-Type: application/json
+
+{
+  "products": [
+    {
+      "store_id": {{storeId}},
+      "category_id": {{categoryId}},
+      "name": "Green Apples",
+      "price": 180.00,
+      "unit": "per kg",
+      "initial_quantity": 40,
+      "reorder_level": 8
+    },
+    {
+      "store_id": {{storeId}},
+      "category_id": {{categoryId}},
+      "name": "Red Onions",
+      "price": 90.00,
+      "unit": "per kg",
+      "initial_quantity": 60,
+      "reorder_level": 12
+    }
+  ]
+}
+
+### 23. Bulk update product prices (Store owner)
+PATCH {{url}}/products/bulk/prices
+Authorization: Bearer {{storeToken}}
+Content-Type: application/json
+
+{
+  "store_id": {{storeId}},
+  "price_adjustment": {
+    "type": "percentage",
+    "value": 10
+  },
+  "product_ids": [1, 2, 3]
+}
+
+### 24. Bulk toggle product status (Store owner)
+PATCH {{url}}/products/bulk/status
+Authorization: Bearer {{storeToken}}
+Content-Type: application/json
+
+{
+  "store_id": {{storeId}},
+  "is_active": false,
+  "product_ids": [1, 2]
+}

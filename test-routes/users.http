@@ -1,50 +1,129 @@
-### 
 @url = http://localhost:8000
-@token=kyour_generated_token_here
+@customerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoicml1a2lzdGV2ZUBnbWFpbC5jb20iLCJyb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3NTE2MjI5MTMsImV4cCI6MTc1MTYyNjUxM30.tffVDEBBUHcH31g9Fk2VfgvWX7ZqpUj12PPIybOe0do
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzUxNjIyOTQ0LCJleHAiOjE3NTE2MjY1NDR9.XSlY9FSkguwi_2NSbIpsF_hMZKrbDCJwtYT8cpnln3M
 
-### Base URL
-GET {{url}}/users/all
-Authorization: Bearer {{token}}
-
-### get User
-
-GET {{url}}/users/me
-Authorization: Bearer {{token}}
-
-### get by id
-GET {{url}}/users/1
-Authorization: Bearer {{token}}
-
-### Create User
-POST {{url}}/users/create
+###
+POST {{url}}/auth/signin
 Content-Type: application/json
-Authorization: Bearer {{token}}
 
 {
-  "email": "<user_email>",
-  "name": "<user_name>",
-  "password": "<user_password>"
+  "email": "riukisteve@gmail.com",
+  "password": "Coding@21"
 }
 
-### Update User
-PUT {{url}}/users/1
+### Get All Products (Product Catalog Page)
+GET {{url}}/products/all
+Authorization: Bearer {{customerToken}}
+
+### Get All Stores (Store Directory Page)
+GET {{url}}/stores/all
+Authorization: Bearer {{customerToken}}
+
+### Get Stores by Location (Store Search/Filter)
+GET {{url}}/stores/location/Nairobi?county=Nairobi County
+Authorization: Bearer {{adminToken}}
+
+### Get Products by Selected Store (Store Products Page)
+GET {{url}}/products/store/2
+Authorization: Bearer {{customerToken}}
+
+### Get Product Details (Product Detail Page)
+GET {{url}}/products/4
+Authorization: Bearer {{customerToken}}
+
+###  Get Products by Category (Category Filter)
+GET {{url}}/products/category/1
+Authorization: Bearer {{customerToken}}
+
+###  Create Order (Checkout Process)
+POST {{url}}/orders
+Authorization: Bearer {{customerToken}}
 Content-Type: application/json
-Authorization: Bearer {{token}}
 
 {
-  "email": "<user_email>",
-  "name": "<user_name>",
-  "password": "<user_password>"
+  "user_id": 1,
+  "store_id": 1,
+  "delivery_method": "standard_delivery",
+  "delivery_address": "123 Main St, Nairobi, Kenya",
+  "estimated_delivery_time": "2025-01-05T15:00:00Z",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 2
+    },
+    {
+      "product_id": 2,
+      "quantity": 1
+    }
+  ]
 }
 
-### Delete User
-DELETE {{url}}/users/1
-Authorization: Bearer {{token}}
+Authorization: Bearer {{customerToken}}
 
-### Get User Profile
-GET {{url}}/users/profile/1
-Authorization: Bearer {{token}}
+###  Initialize Payment with Paystack (Payment Page)
+POST {{url}}/payments/initialize
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
 
-# get user orders
-GET {{url}}/users/orders/1
-Authorization: Bearer {{token}}
+{
+  "user_id": 1,
+  "order_id": 1,
+  "email": "riukisteve@gmail.com",
+  "amount": 2500.00,
+  "callback_url": "http://localhost:3000/payment/success"
+}
+
+###  Create Payment Record (Payment Processing)
+POST {{url}}/payments/initialize
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "order_id": 1,
+  "email": "riukisteve@gmail.com",
+  "amount": 2500.00,
+  "currency": "KES",
+  "payment_method": "CARD",
+  "gateway": "PAYSTACK",
+  "status": "PENDING"
+}
+
+###  Verify Payment Status (Payment Verification)
+GET {{url}}/payments/verify/PAY_1751623993892_1
+Authorization: Bearer {{customerToken}}
+
+
+### ERROR Try to Order Product Not Available in Store
+POST {{url}}/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "store_id": 1,
+  "delivery_method": "standard_delivery",
+  "delivery_address": "123 Main St, Nairobi, Kenya",
+  "items": [
+    {
+      "product_id": 999,
+      "quantity": 1
+    }
+  ]
+}
+
+### ERROR 3: Order Without Authentication
+GET {{url}}/orders/1
+
+### ERROR 4 Try to Initialize Payment for Non-existent Order
+POST {{url}}/payments/initialize
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "order_id": 999,
+  "email": "riukisteve@gmail.com",
+  "amount": 1000.00,
+  "callback_url": "http://localhost:3000/payment/success"
+}

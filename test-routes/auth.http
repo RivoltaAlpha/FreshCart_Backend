@@ -102,7 +102,6 @@ Content-Type: application/json
   "first_name": "Steve",
   "last_name": "Riuki",
   "phone_number": "+254712345678",
-  "address": "123 Main St, Nairobi",
   "city": "Nairobi",
   "country": "Kenya",
   "postal_code": "00100"
@@ -113,8 +112,16 @@ POST {{url}}/auth/signin
 Content-Type: application/json
 
 {
-  "email": "admin2@gmail.com",
-  "password": "securepassword"
+  "email": "admin@gmail.com",
+  "password": "AdminPass@123"
+}
+### login Admin
+POST {{url}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "riukisteve@gmail.com",
+  "password": "Coding@21"
 }
 
 
