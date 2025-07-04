@@ -11,6 +11,8 @@ import { Order } from '../orders/entities/order.entity';
 import { Category } from '../categories/entities/category.entity';
 import { Store } from '../store/entities/store.entity';
 import { Inventory } from '../inventories/entities/inventory.entity';
+import { Payment } from 'src/payments/entities/payment.entity';
+import { OrderItem } from 'src/order-item/entities/order-item.entity';
 
 // Load Environment Variables
 config({
@@ -49,6 +51,8 @@ const dbProvider = {
           Category,
           Store,
           Inventory,
+          Payment,
+          OrderItem,
         ],
         synchronize: configService.getOrThrow<boolean>('DB_SYNC', true),
         logging: configService.getOrThrow<boolean>('DB_LOGGING', false),
@@ -56,7 +60,7 @@ const dbProvider = {
         // url: process.env.DATABASE_URL,
         migrations: [__dirname + '/../migrations/**/*{.ts,.js}'],
       }),
-      inject: [ConfigService], // Inject ConfigService to access configuration values
+      inject: [ConfigService], 
     }),
   ],
   providers: [dbProvider],

@@ -1,7 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { ProductsModule } from './products/products.module';
-import { CartModule } from './cart/cart.module';
 import { PaymentsModule } from './payments/payments.module';
 import { OrdersModule } from './orders/orders.module';
 import { UsersModule } from './users/users.module';
@@ -23,7 +22,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { StoreModule } from './store/store.module';
 import { ProfileModule } from './profile/profile.module';
 import { AddressesModule } from './addresses/addresses.module';
-
+import { OrderItemModule } from './order-item/order-item.module';
 
 @Module({
   imports: [
@@ -44,31 +43,29 @@ import { AddressesModule } from './addresses/addresses.module';
           limit: configService.getOrThrow<number>('THROTTLER_LIMIT', {
             infer: true,
           }),
-          ignoreUserAgents: [/^curl\//], // Ignore specific user agents
+          ignoreUserAgents: [/^curl\//], 
         },
       ],
     }),
     CacheModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      isGlobal: true, // Make cache globally available
+      isGlobal: true, 
       useFactory: (configService: ConfigService) => {
         return {
-          ttl: 60000, // Default TTL for cache entries
+          ttl: 60000, 
           stores: [
             createKeyv(configService.getOrThrow<string>('REDIS_URL')),
 
-            // Using CacheableMemory for in-memory caching
             new Keyv({
               store: new CacheableMemory({ ttl: 30000, lruSize: 5000 }),
             }),
           ],
-          logger: true, // Enable logging for cache operations
+          logger: true,
         };
       },
     }),
     ProductsModule,
-    CartModule,
     PaymentsModule,
     OrdersModule,
     UsersModule,
@@ -78,6 +75,7 @@ import { AddressesModule } from './addresses/addresses.module';
     StoreModule,
     ProfileModule,
     AddressesModule,
+    OrderItemModule,
   ],
   controllers: [AppController],
   providers: [
@@ -91,7 +89,7 @@ import { AddressesModule } from './addresses/addresses.module';
     },
     {
       provide: 'APP_INTERCEPTOR',
-      useClass: CacheInterceptor, // Global cache interceptor
+      useClass: CacheInterceptor, 
     },
   ],
 })
