@@ -3,13 +3,11 @@ import { config } from 'dotenv';
 import { neon } from '@neondatabase/serverless';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-// Import all entities explicitly
 import { User } from '../users/entities/user.entity';
 import { Profile } from '../profile/entities/profile.entity';
 import { Address } from '../addresses/entities/address.entity';
 import { Product } from '../products/entities/product.entity';
 import { Order } from '../orders/entities/order.entity';
-import { Cart } from '../cart/entities/cart.entity';
 import { Category } from '../categories/entities/category.entity';
 import { Store } from '../store/entities/store.entity';
 import { Inventory } from '../inventories/entities/inventory.entity';
@@ -48,14 +46,13 @@ const dbProvider = {
           Address,
           Product,
           Order,
-          Cart,
           Category,
           Store,
           Inventory,
         ],
         synchronize: configService.getOrThrow<boolean>('DB_SYNC', true),
         logging: configService.getOrThrow<boolean>('DB_LOGGING', false),
-        // ssl: { rejectUnauthorized: false },
+        ssl: { rejectUnauthorized: false },
         // url: process.env.DATABASE_URL,
         migrations: [__dirname + '/../migrations/**/*{.ts,.js}'],
       }),
