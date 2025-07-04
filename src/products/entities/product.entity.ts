@@ -1,12 +1,23 @@
 import { Category } from 'src/categories/entities/category.entity';
 import { Inventory } from 'src/inventories/entities/inventory.entity';
 import { Order } from 'src/orders/entities/order.entity';
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn()
   product_id: number;
+
+  @Column({ type: 'int' })
+  category_id: number;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;
@@ -21,13 +32,28 @@ export class Product {
   stock_quantity: number;
 
   @Column({ type: 'varchar', length: 255 })
-  image_url: string;
+  image_url?: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  store_id: number;
+  @Column({ type: 'decimal', precision: 8, scale: 3, nullable: true })
+  weight?: number; // in kg
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  unit: string; // per kg, per piece, per liter, etc.
+
+  @Column({ type: 'decimal', precision: 3, scale: 2, default: 0 })
+  rating: number;
+
+  @Column({ type: 'int', default: 0 })
+  review_count: number;
+
+  @Column({ type: 'int', default: 0 })
+  discount: number;
+
+  @Column({ type: 'date', nullable: true })
+  expiry_date?: Date;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  created_at: Date;
 
   @Column({
     type: 'timestamp',
@@ -43,16 +69,15 @@ export class Product {
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
-  @ManyToOne(() => Inventory, (inventory) => inventory.product)
-  inventories: Inventory[];
-
   @ManyToMany(() => Order, (order) => order.products)
   orders: Relation<Order[]>;
 
-  @ManyToOne(() => Product, (product) => product.store_id, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'store_id' })
-  store: Relation<Product>;
+  
+  @ManyToMany(() => Inventory, (inventory) => inventory.products)
+  inventory: Inventory[];
+
+  // Helper method to get stores that sell this product
+  getStores?(): Promise<any[]> {
+    return Promise.resolve([]);
+  }
 }
