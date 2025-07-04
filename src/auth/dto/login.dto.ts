@@ -35,7 +35,7 @@ export class CreateAuthDto {
   last_name: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   phone_number?: string;
 
@@ -45,14 +45,14 @@ export class CreateAuthDto {
   address?: number[];
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  town: string;
+  town?: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  county: string;
+  county?: string;
 
   @ApiProperty()
   @IsOptional()

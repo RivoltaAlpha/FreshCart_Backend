@@ -50,17 +50,28 @@ export class CreateStoreDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  image_url: string;
+  image_url?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  rating?: number;
 
   @ApiProperty()
   @IsOptional()
   @IsString()
-  rating: string;
+  total_reviews?: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
   @IsOptional()
-  @IsString()
-  total_reviews: string;
+  delivery_fee: number;
+
+  @IsOptional()
+  @ApiProperty()
+  @IsNotEmpty()
+  store_code: string;
 
   @ApiProperty()
   @IsOptional()

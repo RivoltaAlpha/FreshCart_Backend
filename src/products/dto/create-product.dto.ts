@@ -20,6 +20,11 @@ export class CreateProductDto {
 
   @ApiProperty()
   @IsNotEmpty()
+  @IsNumber()
+  store_id: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   description: string;
 
@@ -39,14 +44,50 @@ export class CreateProductDto {
   category_id: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  image_url: string;
+  image_url?: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
-  inventory_id: number;
+  weight?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  unit?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  rating?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  review_count: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  discount?: number;
+
+  // Initial inventory data
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  initial_quantity?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  reorder_level?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  cost_price?: number;
 
   @ApiProperty()
   @IsOptional()
