@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { OrdersService } from './orders.service';
-import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto';
+import { OrderItemService } from './order-item.service';
+import { CreateOrderItemDto } from './dto/create-order-item.dto';
+import { UpdateOrderItemDto } from './dto/update-order-item.dto';
 import { Roles } from 'src/auth/decorators/role.decorators';
 import { Role } from 'src/users/entities/user.entity';
 import {
@@ -9,38 +10,38 @@ import {
 } from '@nestjs/swagger';
 
 @ApiBearerAuth('access-token')
-@ApiTags('Orders')
-@Controller('orders')
-export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+@ApiTags('Order Items')
+@Controller('order-item')
+export class OrderItemController {
+  constructor(private readonly orderItemService: OrderItemService) {}
 
   @Post()
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
+  create(@Body() createOrderItemDto: CreateOrderItemDto) {
+    return this.orderItemService.create(createOrderItemDto);
   }
 
   @Get()
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   findAll() {
-    return this.ordersService.findAll();
+    return this.orderItemService.findAll();
   }
 
   @Get(':id')
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   findOne(@Param('id') id: number) {
-    return this.ordersService.findOne(id);
+    return this.orderItemService.findOne(id);
   }
 
   @Patch(':id')
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
-  update(@Param('id') id: number, @Body() updateOrderDto: UpdateOrderStatusDto) {
-    return this.ordersService.updateStatus(id, updateOrderDto);
+  update(@Param('id') id: number, @Body() updateOrderItemDto: UpdateOrderItemDto) {
+    return this.orderItemService.update(id, updateOrderItemDto);
   }
 
   @Delete(':id')
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   remove(@Param('id') id: number) {
-    return this.ordersService.remove(id);
+    return this.orderItemService.remove(id);
   }
 }
