@@ -75,8 +75,8 @@ export class UsersService {
           addresses: {
             address_id: true,
             street: true,
-            city: true,
-            state: true,
+            town: true,
+            county: true,
             postal_code: true,
             country: true,
             type: true,
