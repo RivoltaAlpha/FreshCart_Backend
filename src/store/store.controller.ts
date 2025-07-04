@@ -1,23 +1,20 @@
-import {Controller,Get,Post,Body,Patch,Param,Delete,Query,UseGuards,Request,ParseIntPipe} from '@nestjs/common';
+import {Controller,Get,Post,Body,Patch,Param,Delete,Query,Request,ParseIntPipe} from '@nestjs/common';
 import { StoreService } from './store.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { AtGuard } from '../auth/guards/at.guards';
-import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/role.decorators';
 import { Role } from 'src/users/entities/user.entity';
 
 
 @ApiTags('Stores')
+@ApiBearerAuth('access-token')
 @Controller('stores')
 export class StoreController {
   constructor(private readonly storeService: StoreService) {}
 
   @Post()
-  @UseGuards(AtGuard, RolesGuard)
   @Roles(Role.Store, Role.Admin)
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new store' })
   @ApiResponse({ status: 201, description: 'Store successfully created' })
   @ApiResponse({ status: 403, description: 'Only Store role users can create stores' })
@@ -26,7 +23,7 @@ export class StoreController {
     return this.storeService.create(createStoreDto);
   }
 
-  @Get()
+  @Get('all')
   @ApiOperation({ summary: 'Get all stores' })
   findAll() {
     return this.storeService.findAll();
@@ -43,7 +40,6 @@ export class StoreController {
   }
 
   @Get('owner/:ownerId')
-  @UseGuards(AtGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get store by owner ID' })
   findByOwner(@Param('ownerId', ParseIntPipe) ownerId: number) {
@@ -57,7 +53,6 @@ export class StoreController {
   }
 
   @Patch(':id')
-  @UseGuards(AtGuard, RolesGuard)
   @Roles(Role.Store, Role.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update store' })
@@ -71,7 +66,6 @@ export class StoreController {
   }
 
   @Post(':id/rate')
-  @UseGuards(AtGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Rate a store' })
   rateStore(
@@ -82,7 +76,6 @@ export class StoreController {
   }
 
   @Delete(':id')
-  @UseGuards(AtGuard, RolesGuard)
   @Roles(Role.Store, Role.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete store' })

@@ -95,12 +95,6 @@ export class StoreService {
             phone_number: true,
           },
         },
-        products: {
-          product_id: true,
-          name: true,
-          price: true,
-          description: true,
-        },
       },
     });
 

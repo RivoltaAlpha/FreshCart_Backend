@@ -1,6 +1,8 @@
 @url = http://localhost:8000
-@token = YOUR_STORE_TOKEN_HERE
-@adminToken = YOUR_ADMIN_TOKEN_HERE
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzUxNjAyNjYyLCJleHAiOjE3NTE2MDYyNjJ9.HLbEdVPKuXW3Aql1VwZrHcwFQmhkNCAj8K9JJQlkLWI
+
+GET {{url}}/users/all
+Authorization: Bearer {{token}}
 
 ### 1. Create a new store (Store owner only)
 POST {{url}}/stores
@@ -8,26 +10,23 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "owner_id": 2,
+  "owner_id": 5,
   "name": "Fresh Groceries Nairobi",
   "description": "Premium fresh groceries and organic produce",
   "city": "Nairobi",
-  "state": "Nairobi County",
+  "town": "Westlands",
+  "county": "Nairobi County",
   "country": "Kenya",
-  "address": "123 Market Street, Nairobi",
-  "phone_number": "+254700123456",
-  "email": "contact@freshgroceries.co.ke",
-  "latitude": -1.2921,
-  "longitude": 36.8219,
-  "opening_time": "06:00",
-  "closing_time": "22:00",
-  "delivery_fee": 150.00,
-  "minimum_order": 500.00,
-  "delivery_time_minutes": 45
+  "contact_info": "contact@freshgroceries.co.ke",
+  "delivery_fee": 250.00,
+  "store_code": "FGN-001",
+  "image_url": "https://example.com/store-image.jpg",
+  "delivery_time_minutes": 45,
+  "rating": 4.8
 }
 
 ### 2. Get all stores with pagination
-GET {{url}}/stores?page=1&limit=10
+GET {{url}}/stores
 
 ### 3. Get active stores only
 GET {{url}}/stores/active
@@ -66,7 +65,7 @@ Authorization: Bearer {{token}}
 
 ### 10. Verify store (Admin only)
 PATCH {{url}}/stores/1/verify
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer {{{{token}}}
 
 ### 11. Rate a store
 POST {{url}}/stores/1/rate

@@ -1,6 +1,5 @@
 import { Inventory } from 'src/inventories/entities/inventory.entity';
 import { Order } from 'src/orders/entities/order.entity';
-import { Product } from 'src/products/entities/product.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -39,6 +38,12 @@ export class Store {
   @Column({ type: 'int', default: 0 })
   total_reviews?: number;
 
+  @Column({ type: 'varchar', length: 50, unique: true })
+  store_code: string;
+
+  @Column({ type: 'int', default: 0 })
+  delivery_fee: number;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
   @Column({
@@ -48,20 +53,17 @@ export class Store {
   })
   updated_at: Date;
 
- // Relationships
   @ManyToOne(() => User, (user) => user.stores)
   @JoinColumn({ name: 'owner_id' })
   owner: User;
-
-  @OneToMany(() => Product, (product) => product.store, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
-  products: Product[];
 
   @OneToMany(() => Order, (order) => order.store)
   orders: Order[];
 
   @OneToMany(() => Inventory, (inventory) => inventory.store)
   inventories: Inventory[];
+
+    getProducts?(): Promise<any[]> {
+    return Promise.resolve([]);
+  }
 }
