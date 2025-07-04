@@ -44,7 +44,6 @@ export class CategoriesService {
     }
   }
 
-  // category products
   async categoryProducts (category_id: number) {
     return this.categoriesRepository.find({
       where: {

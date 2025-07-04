@@ -20,6 +20,11 @@ export class CreateCategoryDto {
   name: string;
 
   @ApiProperty()
+  @IsOptional()
+  @IsString()
+  image_url?: string;
+
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   description: string;
