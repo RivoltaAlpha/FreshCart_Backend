@@ -2,11 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateAddressDto {
-    @ApiProperty()
+  @ApiProperty()
+  address_id: number;
+
+  @ApiProperty()
   profile_id: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   street: string;
 
   @ApiProperty()
@@ -32,21 +35,13 @@ export class CreateAddressDto {
 
   @ApiProperty()
   @IsOptional()
-  latitude?: number;
-
-  @ApiProperty()
-  @IsOptional()
-  longitude?: number;
-
-  @ApiProperty()
-  @IsOptional()
   isDefault?: boolean;
 
   @ApiProperty()
   @IsOptional()
-  createdAt?: Date;
+  created_at?: Date;
 
   @ApiProperty()
   @IsOptional()
-  updatedAt?: Date;
+  updated_at?: Date;
 }

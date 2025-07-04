@@ -7,44 +7,38 @@ export class Address {
   address_id: number;
   
   @Column({ type: 'int' })
-  profileId: number;
+  profile_id: number;
 
   @Column({ type: 'varchar', length: 100 })
-  street: string;
+  street?: string;
 
   @Column({ type: 'varchar', length: 100 })
-  city: string;
+  town: string;
 
   @Column({ type: 'varchar', length: 100 })
-  state: string;
+  county: string;
 
   @Column({ type: 'varchar', length: 20 })
   postal_code: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100,   default: 'Kenya' })
   country: string;
   
   @Column({ type: 'enum', enum: ['home', 'work', 'other'], default: 'home' })
   type: string;
   
-  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
-  latitude?: number | null;
-  
-  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
-  longitude?: number | null;
-  
   @Column({ type: 'boolean', default: false })
   isDefault: boolean;
   
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    createdAt: Date;
+    created_at: Date;
 
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: Date;
+  updated_at: Date;
 
   @ManyToOne(() => Profile, (profile) => profile.addresses,{
     onDelete: 'CASCADE',

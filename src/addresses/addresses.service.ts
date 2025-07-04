@@ -17,10 +17,10 @@ export class AddressesService {
     return await this.addressRepository.save(address);
   }
 
-  async findByProfileId(profileId: number): Promise<Address[]> {
+  async findByProfileId(profile_id: number): Promise<Address[]> {
     return await this.addressRepository.find({
-      where: { profileId },
-      order: { isDefault: 'DESC', createdAt: 'ASC' },
+      where: { profile_id },
+      order: { isDefault: 'DESC', created_at: 'ASC' },
     });
   }
 
@@ -47,14 +47,12 @@ export class AddressesService {
     await this.addressRepository.remove(address);
   }
 
-  async setDefaultAddress(addressId: number, profileId: number): Promise<Address> {
-    // First, unset all default addresses for this profile
+  async setDefaultAddress(addressId: number, profile_id: number): Promise<Address> {
     await this.addressRepository.update(
-      { profileId },
+      { profile_id },
       { isDefault: false }
     );
 
-    // Then set the specified address as default
     await this.addressRepository.update(
       { address_id: addressId },
       { isDefault: true }
@@ -64,6 +62,6 @@ export class AddressesService {
   }
   
   findUserAddresses(profile_id: number) {
-    return this.addressRepository.find({ where: { profileId: profile_id } });
+    return this.addressRepository.find({ where: { profile_id: profile_id } });
   }
 }
