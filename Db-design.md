@@ -13,8 +13,7 @@ This document provides a comprehensive overview of all database entities in the 
 8. [Order Entity](#order-entity)
 9. [OrderItem Entity](#orderitem-entity)
 10. [Payment Entity](#payment-entity)
-11. [Cart Entity](#cart-entity)
-12. [Entity Relationships Diagram](#entity-relationships-diagram)
+11. [Entity Relationships Diagram](#entity-relationships-diagram)
 
 ---
 
@@ -356,24 +355,6 @@ enum PaymentGateway {
   CASH = 'cash'
 }
 ```
-
----
-
-## Cart Entity
-
-**Table:** `cart`
-
-### Status
-🚧 **Under Development** - Entity definition is currently being implemented.
-
-### Planned Attributes (Based on Features.md)
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Unique identifier for the cart |
-| `user_id` | `number` | Reference to User entity |
-| `items` | `CartItem[]` | Array of cart items |
-| `updated_at` | `timestamp` | Last modification date |
-| `expires_at` | `timestamp` | Cart expiration date |
 
 ---
 
