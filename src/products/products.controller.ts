@@ -14,6 +14,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/role.decorators';
 import { Role } from 'src/users/entities/user.entity';
 import { Product } from './entities/product.entity';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @ApiBearerAuth('access-token')
 @Controller('products')
@@ -27,13 +28,13 @@ export class ProductsController {
   }
 
   @Get('all')
-  @Roles(Role.Admin, Role.Store, Role.Customer)
+  @Public()
   findAll() {
     return this.productsService.findAll();
   }
 
   @Get(':id')
-  @Roles(Role.Admin, Role.Store, Role.Customer)
+  @Public()
   findOne(@Param('id') id: number) {
     return this.productsService.findOne(+id);
   }
@@ -51,6 +52,7 @@ export class ProductsController {
   }
 
   @Get('store/:storeId')
+  @Public()
   async getProductsByStore(
     @Param('storeId') storeId: number,
   ): Promise<Product[]> {
@@ -58,6 +60,7 @@ export class ProductsController {
   }
 
   @Get('category/:categoryId')
+  @Public()
   async getProductsByCategory(
     @Param('categoryId') categoryId: number,
   ): Promise<Product[]> {

@@ -5,6 +5,7 @@ import { UpdateStoreDto } from './dto/update-store.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/role.decorators';
 import { Role } from 'src/users/entities/user.entity';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 
 @ApiTags('Stores')
@@ -24,12 +25,14 @@ export class StoreController {
   }
 
   @Get('all')
+  @Public()
   @ApiOperation({ summary: 'Get all stores' })
   findAll() {
     return this.storeService.findAll();
   }
 
   @Get('location/:city')
+  @Public()
   @ApiOperation({ summary: 'Get stores by location' })
   @ApiQuery({ name: 'state', required: false, description: 'State/County filter' })
   findByLocation(
@@ -39,14 +42,8 @@ export class StoreController {
     return this.storeService.findByLocation(city, state);
   }
 
-  @Get('owner/:ownerId')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get store by owner ID' })
-  findByOwner(@Param('ownerId', ParseIntPipe) ownerId: number) {
-    return this.storeService.findByOwner(ownerId);
-  }
-
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Get store by ID' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.storeService.findOne(id);

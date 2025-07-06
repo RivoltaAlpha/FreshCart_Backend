@@ -52,7 +52,7 @@ export class InventoriesService {
     const queryBuilder = this.inventoryRepository
       .createQueryBuilder('inventory')
       .leftJoinAndSelect('inventory.products', 'product')
-      .leftJoinAndSelect('inventory.store', 'store')
+      .leftJoin('inventory.store', 'store')
       .orderBy('inventory.created_at', 'DESC');
 
     if (storeId) {
@@ -398,10 +398,21 @@ export class InventoriesService {
   }
 
   // Method to get all products in a specific inventory
-  async getProductsInInventory(inventoryId: number): Promise<Product[]> {
+  async getProductsInInventory(inventoryId: number) {
     const inventory = await this.inventoryRepository.findOne({
       where: { inventory_id: inventoryId },
       relations: ['products'],
+      select: {
+        inventory_id: true,
+        products: {
+          product_id: true,
+          name: true,
+          price: true,
+          description: true,
+          category: true,
+          stock_quantity: true,
+        },
+      },
     });
 
     if (!inventory) {

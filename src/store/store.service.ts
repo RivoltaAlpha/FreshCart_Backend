@@ -105,19 +105,6 @@ export class StoreService {
     return store;
   }
 
-  async findByOwner(ownerId: number): Promise<Store> {
-    const store = await this.storeRepository.findOne({
-      where: { owner_id: ownerId },
-      relations: ['products'],
-    });
-
-    if (!store) {
-      throw new NotFoundException(`No store found for owner with ID ${ownerId}`);
-    }
-
-    return store;
-  }
-
   async update(id: number, updateStoreDto: UpdateStoreDto, userId?: number): Promise<Store> {
     const store = await this.findOne(id);
 
