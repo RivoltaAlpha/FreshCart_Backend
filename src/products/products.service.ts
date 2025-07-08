@@ -98,8 +98,8 @@ export class ProductsService {
     const queryBuilder = this.productsRepository
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.category', 'category')
-      .leftJoinAndSelect('product.inventory', 'inventory')
-      .leftJoinAndSelect('inventory.store', 'store')
+      .leftJoin('product.inventory', 'inventory')
+      .leftJoin('inventory.store', 'store')
       .where('inventory.store_id = :storeId', { storeId })
       .orderBy('product.created_at', 'DESC');
 
