@@ -151,11 +151,6 @@ export class InventoriesController {
     return this.inventoriesService.confirmSale(id, quantity);
   }
 
-
-
-
-
-
   @Post(':inventoryId/products/:productId')
   @Roles(Role.Admin, Role.Store)
   addProductToInventory(
