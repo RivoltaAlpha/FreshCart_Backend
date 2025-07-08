@@ -69,8 +69,8 @@ export class CreateOrderDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsDateString()
-  estimated_delivery_time?: Date;
+  @IsNumber()
+  estimated_delivery_time?: number;
 
   @ApiProperty()
   @IsOptional()

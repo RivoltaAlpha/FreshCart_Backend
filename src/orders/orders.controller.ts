@@ -20,7 +20,7 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto);
   }
 
-  @Get()
+  @Get('all')
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   findAll() {
     return this.ordersService.findAll();
@@ -42,5 +42,10 @@ export class OrdersController {
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   remove(@Param('id') id: number) {
     return this.ordersService.remove(id);
+  }
+  @Get('user/:userId')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
+  findByUser(@Param('userId') userId: number) {
+    return this.ordersService.findByUser(userId);
   }
 }

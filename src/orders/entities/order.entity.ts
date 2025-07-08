@@ -65,8 +65,8 @@ export class Order {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   total_amount: number;
 
-  @Column({ type: 'timestamp', nullable: true })
-  estimated_delivery_time?: Date;
+  @Column({ type: 'int', nullable: true })
+  estimated_delivery_time?: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -219,12 +219,7 @@ export class OrdersService {
     }
   }
 
-  async findAll(
-    page: number = 1,
-    limit: number = 20,
-    status?: OrderStatus,
-    storeId?: number,
-  ): Promise<{ orders: Order[]; total: number; pages: number }> {
+  async findAll(): Promise<Order[]> {
     const queryBuilder = this.ordersRepository
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.user', 'user')
@@ -234,23 +229,9 @@ export class OrdersService {
       .leftJoinAndSelect('items.product', 'product')
       .orderBy('order.created_at', 'DESC');
 
-    if (status) {
-      queryBuilder.andWhere('order.status = :status', { status });
-    }
+    const [orders] = await queryBuilder.getManyAndCount();
 
-    if (storeId) {
-      queryBuilder.andWhere('order.store_id = :storeId', { storeId });
-    }
-
-    queryBuilder.skip((page - 1) * limit).take(limit);
-
-    const [orders, total] = await queryBuilder.getManyAndCount();
-
-    return {
-      orders,
-      total,
-      pages: Math.ceil(total / limit),
-    };
+    return orders;
   }
 
   async findOne(id: number): Promise<Order> {
@@ -275,34 +256,13 @@ export class OrdersService {
     return order;
   }
 
-  async findByUser(
-    userId: number,
-    page: number = 1,
-    limit: number = 20,
-    status?: OrderStatus,
-  ): Promise<{ orders: Order[]; total: number; pages: number }> {
-    const queryBuilder = this.ordersRepository
-      .createQueryBuilder('order')
-      .leftJoinAndSelect('order.store', 'store')
-      .leftJoinAndSelect('order.items', 'items')
-      .leftJoinAndSelect('items.product', 'product')
-      .leftJoinAndSelect('order.payments', 'payments')
-      .where('order.user_id = :userId', { userId })
-      .orderBy('order.created_at', 'DESC');
+  async findByUser(userId: number): Promise<Order[]> {
+    const userOrders = this.ordersRepository.find({
+      where: { user_id: userId },
+      relations: ['store', 'items', 'items.product', 'payments', 'driver'],
+    });
 
-    if (status) {
-      queryBuilder.andWhere('order.status = :status', { status });
-    }
-
-    queryBuilder.skip((page - 1) * limit).take(limit);
-
-    const [orders, total] = await queryBuilder.getManyAndCount();
-
-    return {
-      orders,
-      total,
-      pages: Math.ceil(total / limit),
-    };
+    return userOrders;
   }
 
   async findByStore(
