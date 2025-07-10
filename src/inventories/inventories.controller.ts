@@ -84,7 +84,10 @@ export class InventoriesController {
     @Param('productId', ParseIntPipe) productId: number,
     @Param('storeId', ParseIntPipe) storeId: number,
   ) {
-    return this.inventoriesService.getInventoryWithProductInStore(productId, storeId);
+    return this.inventoriesService.getInventoryWithProductInStore(
+      productId,
+      storeId,
+    );
   }
 
   @Get('product/:productId/store/:storeId/exists')
@@ -102,7 +105,10 @@ export class InventoriesController {
     @Param('productId', ParseIntPipe) productId: number,
     @Param('storeId', ParseIntPipe) storeId: number,
   ) {
-    return this.inventoriesService.getTotalProductStockInStore(productId, storeId);
+    return this.inventoriesService.getTotalProductStockInStore(
+      productId,
+      storeId,
+    );
   }
 
   @Get(':id/products')
@@ -157,7 +163,10 @@ export class InventoriesController {
     @Param('inventoryId', ParseIntPipe) inventoryId: number,
     @Param('productId', ParseIntPipe) productId: number,
   ) {
-    return this.inventoriesService.addProductToInventory(inventoryId, productId);
+    return this.inventoriesService.addProductToInventory(
+      inventoryId,
+      productId,
+    );
   }
 
   @Delete(':inventoryId/products/:productId')
@@ -166,6 +175,21 @@ export class InventoriesController {
     @Param('inventoryId', ParseIntPipe) inventoryId: number,
     @Param('productId', ParseIntPipe) productId: number,
   ) {
-    return this.inventoriesService.removeProductFromInventory(inventoryId, productId);
+    return this.inventoriesService.removeProductFromInventory(
+      inventoryId,
+      productId,
+    );
+  }
+  @Get('store/:storeId')
+  @Roles(Role.Admin, Role.Store, Role.Customer)
+  getStoreInventories(@Param('storeId', ParseIntPipe) storeId: number) {
+    return this.inventoriesService.getStoreInventories(storeId);
+  }
+
+  // store products
+  @Get('all-products/:storeId')
+  @Roles(Role.Admin, Role.Store, Role.Customer)
+  getAllStoreProducts(@Param('storeId', ParseIntPipe) storeId: number) {
+    return this.inventoriesService.getAllStoreProductsInInventories(storeId);
   }
 }

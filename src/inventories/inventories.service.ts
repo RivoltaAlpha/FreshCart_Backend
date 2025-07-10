@@ -439,4 +439,33 @@ export class InventoriesService {
       0,
     );
   }
+
+  async getStoreInventories(storeId: number): Promise<Inventory[]> {
+    const inventories = await this.inventoryRepository.find({
+      where: { store_id: storeId },
+      relations: ['products'],
+      order: { created_at: 'DESC' },
+    });
+    return inventories;
+  }
+
+  // get all store products in all inventories
+  async getAllStoreProductsInInventories(
+    storeId: number,
+  ): Promise<Product[]> {
+    const inventories = await this.getStoreInventories(storeId);
+    const products: Product[] = [];
+
+    for (const inventory of inventories) {
+      for (const product of inventory.products) {
+        if (!products.some((p) => p.product_id === product.product_id)) {
+          products.push(product);
+        }
+      }
+    }
+
+    return products;
+  }
 }
+
+
