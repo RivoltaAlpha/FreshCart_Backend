@@ -14,7 +14,7 @@ import {
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  @Post()
+  @Post('create')
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   create(@Body() createOrderDto: CreateOrderDto) {
     return this.ordersService.create(createOrderDto);
