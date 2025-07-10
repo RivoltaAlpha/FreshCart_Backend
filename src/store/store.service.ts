@@ -141,4 +141,23 @@ export class StoreService {
 
     await this.storeRepository.remove(store);
   }
+
+  async findByOwnerId(ownerId: number): Promise<Store | null> {
+    return await this.storeRepository.findOne({
+      where: { owner_id: ownerId },
+      relations: ['owner', 'owner.profile'],
+      select: {
+        owner: {
+          user_id: true,
+          email: true,
+          profile: {
+            first_name: true,
+            last_name: true,
+            phone_number: true,
+          },
+        },
+      },
+    });
+  }
+
 }

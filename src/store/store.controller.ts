@@ -80,4 +80,10 @@ export class StoreController {
     const userId = req.user?.role === Role.Admin ? undefined : req.user?.sub;
     return this.storeService.remove(id, userId);
   }
+
+  @Get('owner/:id')
+  @ApiOperation({ summary: 'Get store by owner ID' })
+  findByOwnerId(@Param('id', ParseIntPipe) id: number) {
+    return this.storeService.findByOwnerId(id);
+  }
 }
