@@ -34,13 +34,16 @@ export class Payment {
   @PrimaryGeneratedColumn()
   payment_id: number;
 
+  @Column({ type: 'varchar', length: 20, unique: true })
+  payment_number: string;
+
   @Column({ type: 'int' })
   order_id: number;
 
   @Column({ type: 'varchar', length: 255 })
   email: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ nullable: true })
   authorization_url?: string;
 
   @Column({ type: 'int' })
@@ -57,7 +60,6 @@ export class Payment {
 
   @Column({ type: 'enum', enum: PaymentGateway })
   gateway: PaymentGateway;
-
   
   @Column({ type: 'varchar', length: 255, unique: true })
   payment_reference: string;
@@ -73,9 +75,6 @@ export class Payment {
 
   @Column({ type: 'json', nullable: true })
   gateway_response?: any; 
-
-  @Column({ type: 'json', nullable: true })
-  metadata?: any; 
 
   @Column({ type: 'text', nullable: true })
   failure_reason?: string;

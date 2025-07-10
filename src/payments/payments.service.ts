@@ -124,8 +124,11 @@ export class PaymentsService {
         );
       }
 
+      const paymentNumber = await this.generatePaymentNumber();
+
       const payment = this.paymentsRepository.create({
         user_id: createPaymentDto.user_id,
+        payment_number: paymentNumber,
         order_id: createPaymentDto.order_id,
         email: createPaymentDto.email,
         amount: createPaymentDto.amount,
@@ -157,7 +160,7 @@ export class PaymentsService {
     }
   }
 
- async verifyTransaction(reference: string): Promise<VerifyResponse> {
+  async verifyTransaction(reference: string): Promise<VerifyResponse> {
     try {
       const response = await axios.get(
         `https://api.paystack.co/transaction/verify/${reference}`,
@@ -185,12 +188,23 @@ export class PaymentsService {
             ? PaymentStatus.COMPLETED
             : PaymentStatus.FAILED;
 
-        payment.gateway_response = response.data;
+        // Store only essential gateway response data
+        payment.gateway_response = {
+          status: transactionData.status,
+          gateway_response: transactionData.gateway_response,
+          channel: transactionData.channel,
+          fees: transactionData.fees,
+          paid_at: transactionData.paid_at,
+          receipt_number: transactionData.receipt_number,
+        };
+
         if (transactionData.status !== 'success') {
           payment.failed_at = new Date();
           payment.failure_reason = transactionData.gateway_response;
         }
-
+        // Clear authorization_url after completion as it's no longer needed
+        payment.authorization_url = undefined;
+        
         await this.paymentsRepository.save(payment);
       }
 
@@ -253,5 +267,25 @@ export class PaymentsService {
 
   remove(payment_id: number) {
     return this.paymentsRepository.delete(payment_id);
+  }
+
+
+    private async generatePaymentNumber(): Promise<string> {
+    const date = new Date();
+    const prefix = `PAY${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+
+    const lastPayment = await this.paymentsRepository
+      .createQueryBuilder('payment')
+      .where('payment.payment_number LIKE :prefix', { prefix: `${prefix}%` })
+      .orderBy('payment.payment_number', 'DESC')
+      .getOne();
+
+    let sequence = 1;
+    if (lastPayment) {
+      const lastSequence = parseInt(lastPayment.payment_number.slice(-4));
+      sequence = lastSequence + 1;
+    }
+
+    return `${prefix}${sequence.toString().padStart(4, '0')}`;
   }
 }
