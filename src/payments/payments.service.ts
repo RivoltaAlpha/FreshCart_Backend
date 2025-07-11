@@ -10,6 +10,8 @@ import {
   PaymentGateway,
 } from './entities/payment.entity';
 import axios from 'axios';
+import { OrdersService } from 'src/orders/orders.service';
+import { Order, OrderStatus } from 'src/orders/entities/order.entity';
 
 interface PaymentResponse {
   status: string;
@@ -82,6 +84,9 @@ export class PaymentsService {
   constructor(
     @InjectRepository(Payment)
     private paymentsRepository: Repository<Payment>,
+    @InjectRepository(Order)
+    private ordersRepository: Repository<Order>,
+    private ordersService: OrdersService,
   ) {}
 
   async initializePayment(createPaymentDto: CreatePaymentDto) {
@@ -202,9 +207,24 @@ export class PaymentsService {
           payment.failed_at = new Date();
           payment.failure_reason = transactionData.gateway_response;
         }
+
+        // Only confirm order if payment was just completed (not already completed)
+        if (
+          payment.status === PaymentStatus.COMPLETED &&
+          transactionData.status === 'success'
+        ) {
+          // Check if order is not already confirmed before attempting to confirm
+          const order = await this.ordersRepository.findOne({
+            where: { order_id: payment.order_id },
+          });
+
+          if (order && order.status !== OrderStatus.CONFIRMED) {
+            await this.ordersService.confirmOrderAfterPayment(payment.order_id);
+          }
+        }
         // Clear authorization_url after completion as it's no longer needed
         payment.authorization_url = undefined;
-        
+
         await this.paymentsRepository.save(payment);
       }
 
@@ -269,8 +289,7 @@ export class PaymentsService {
     return this.paymentsRepository.delete(payment_id);
   }
 
-
-    private async generatePaymentNumber(): Promise<string> {
+  private async generatePaymentNumber(): Promise<string> {
     const date = new Date();
     const prefix = `PAY${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}`;
 

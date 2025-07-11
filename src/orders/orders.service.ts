@@ -200,6 +200,10 @@ export class OrdersService {
     return await this.updateStatus(id, { status: OrderStatus.CONFIRMED });
   }
 
+ async confirmOrderAfterPayment(order_id: number): Promise<Order> {
+    return await this.updateStatus(order_id, { status: OrderStatus.CONFIRMED });
+  }
+
   private async releaseOrderStock(order: Order): Promise<void> {
     for (const item of order.items) {
       try {
@@ -265,12 +269,7 @@ export class OrdersService {
     return userOrders;
   }
 
-  async findByStore(
-    storeId: number,
-    page: number = 1,
-    limit: number = 20,
-    status?: OrderStatus,
-  ): Promise<{ orders: Order[]; total: number; pages: number }> {
+  async findByStore(storeId: number): Promise<Order[]> {
     const queryBuilder = this.ordersRepository
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.user', 'user')
@@ -281,19 +280,7 @@ export class OrdersService {
       .where('order.store_id = :storeId', { storeId })
       .orderBy('order.created_at', 'DESC');
 
-    if (status) {
-      queryBuilder.andWhere('order.status = :status', { status });
-    }
-
-    queryBuilder.skip((page - 1) * limit).take(limit);
-
-    const [orders, total] = await queryBuilder.getManyAndCount();
-
-    return {
-      orders,
-      total,
-      pages: Math.ceil(total / limit),
-    };
+    return await queryBuilder.getMany();
   }
 
   async updateStatus(

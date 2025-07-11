@@ -32,7 +32,7 @@ export class OrdersController {
     return this.ordersService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   update(@Param('id') id: number, @Body() updateOrderDto: UpdateOrderStatusDto) {
     return this.ordersService.updateStatus(id, updateOrderDto);
@@ -47,5 +47,11 @@ export class OrdersController {
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   findByUser(@Param('userId') userId: number) {
     return this.ordersService.findByUser(userId);
+  }
+  // Get orders by store
+  @Get('store/:storeId')
+  @Roles(Role.Store, Role.Admin)
+  findByStore(@Param('storeId') storeId: number) {
+    return this.ordersService.findByStore(storeId);
   }
 }
