@@ -21,6 +21,7 @@ import { ProfileModule } from './profile/profile.module';
 import { AddressesModule } from './addresses/addresses.module';
 import { OrderItemModule } from './order-item/order-item.module';
 import { DeliveriesModule } from './deliveries/deliveries.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { DeliveriesModule } from './deliveries/deliveries.module';
     AddressesModule,
     OrderItemModule,
     DeliveriesModule,
+    EventEmitterModule.forRoot()
   ],
   controllers: [AppController],
   providers: [
