@@ -6,17 +6,22 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  );
 
-    // Enable CORS for specific origins
+  // Enable CORS for specific origins
   app.enableCors({
-  origin: [
-    'http://localhost:8000',
-    'http://localhost:5173',
-    'https://redeployedinventory-dnd8gmc3a2a0dzcw.southafricanorth-01.azurewebsites.net/api/docs',
-  ],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', 
-    allowedHeaders: 'Content-Type, Authorization', 
+    origin: [
+      'http://localhost:8000',
+      'http://localhost:5173',
+      'https://redeployedinventory-dnd8gmc3a2a0dzcw.southafricanorth-01.azurewebsites.net/api/docs',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
     credentials: true,
   });
 
