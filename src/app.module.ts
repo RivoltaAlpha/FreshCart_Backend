@@ -20,6 +20,7 @@ import { StoreModule } from './store/store.module';
 import { ProfileModule } from './profile/profile.module';
 import { AddressesModule } from './addresses/addresses.module';
 import { OrderItemModule } from './order-item/order-item.module';
+import { DeliveriesModule } from './deliveries/deliveries.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { OrderItemModule } from './order-item/order-item.module';
     ProfileModule,
     AddressesModule,
     OrderItemModule,
+    DeliveriesModule,
   ],
   controllers: [AppController],
   providers: [
