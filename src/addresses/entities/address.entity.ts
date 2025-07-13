@@ -50,7 +50,7 @@ export class Address {
   @ManyToOne(() => Profile, (profile) => profile.addresses, {
     onDelete: 'CASCADE',
   })
-  profile: Profile;
+  profile?: Profile;
 
   @OneToOne(() => Store, (store) => store.address, {
     nullable: true,
