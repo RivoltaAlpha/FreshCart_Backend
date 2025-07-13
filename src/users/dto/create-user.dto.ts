@@ -7,6 +7,7 @@ import {
   IsEnum,
   IsNumber,
   IsOptional,
+  IsBoolean,
 } from 'class-validator';
 
 export enum Role {
@@ -45,13 +46,13 @@ export class CreateUserDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsDate()
-  created_at: Date;
+  @IsBoolean()
+  is_active: boolean = true;
 
   @ApiProperty()
   @IsOptional()
-  @IsDate()
-  updated_at: Date;
+  @IsBoolean()
+  is_available: boolean = true;
 
   @ApiProperty()
   @IsNotEmpty()

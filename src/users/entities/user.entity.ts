@@ -30,15 +30,21 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   hashedRefreshToken?: string | null;
 
+  @Column({ type: 'boolean', default: true })
+  is_active?: boolean;
+
+  @Column({ type: 'boolean', default: true })
+  is_available?: boolean;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  created_at: Date;
 
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: Date;
+  updated_at: Date;
 
   @OneToMany(() => Order, (order) => order.user, {
     cascade: true,

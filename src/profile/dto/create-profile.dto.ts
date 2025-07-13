@@ -29,20 +29,6 @@ export class CreateProfileDto {
 
   @ApiProperty()
   @IsOptional()
-  town?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  county?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  country?: string;
-
-  @ApiProperty()
-  @IsOptional()
   @IsDate()
   created_at: Date;
 
