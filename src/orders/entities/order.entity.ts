@@ -87,6 +87,9 @@ export class Order {
   prepared_at?: Date;
 
   @Column({ type: 'timestamp', nullable: true })
+  finished_at?: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
   picked_up_at?: Date;
 
   @Column({ type: 'timestamp', nullable: true })
