@@ -10,11 +10,12 @@ import { AccessStrategy } from './strategies/accsess.stategy';
 import { RefreshStrategy } from './strategies/refresh.stategy';
 import { RolesGuard } from './guards/roles.guard';
 import { Profile } from 'src/profile/entities/profile.entity';
+import { Address } from 'src/addresses/entities/address.entity';
 
 @Module({
   imports: [
     DatabaseModule,
-    TypeOrmModule.forFeature([User, Profile]),
+    TypeOrmModule.forFeature([User, Profile, Address]),
     JwtModule.register({
       global: true,
     }), 

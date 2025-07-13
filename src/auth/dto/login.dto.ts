@@ -41,13 +41,13 @@ export class CreateAuthDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsArray()
-  address?: number[];
+  @IsString()
+  town?: string;
 
   @ApiProperty()
   @IsOptional()
   @IsString()
-  town?: string;
+  area?: string;
 
   @ApiProperty()
   @IsOptional()

@@ -14,6 +14,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Profile } from 'src/profile/entities/profile.entity';
 import { LoginDto } from './dto/signin.dto';
+import { Address } from 'src/addresses/entities/address.entity';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,8 @@ export class AuthService {
     private userRepository: Repository<User>,
     @InjectRepository(Profile)
     private profileService: Repository<Profile>,
+    @InjectRepository(Address) // Add Address repository
+    private addressRepository: Repository<Address>,
     private configService: ConfigService,
     private jwtService: JwtService,
     private readonly dataSource: DataSource,
@@ -89,16 +92,14 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async SignUp(
-    createAuthDto: CreateAuthDto
-  ) {
+  async SignUp(createAuthDto: CreateAuthDto) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       const existingUser = await this.userRepository.findOne({
         where: { email: createAuthDto.email },
-        select: ['user_id', 'profile'], 
+        select: ['user_id', 'profile'],
       });
 
       if (existingUser) {
@@ -113,11 +114,21 @@ export class AuthService {
         first_name: createAuthDto.first_name,
         last_name: createAuthDto.last_name,
         phone_number: createAuthDto.phone_number,
+      });
+      const savedProfile = await queryRunner.manager.save(profile);
+
+      // Step 2: Create address 
+      const address = this.addressRepository.create({
+        area: createAuthDto.area,
         town: createAuthDto.town,
         county: createAuthDto.county,
         country: createAuthDto.country || 'Kenya',
+        type: 'home',
+        isDefault: true,
+        profile: savedProfile, 
       });
-      const savedProfile = await queryRunner.manager.save(profile);
+
+      await queryRunner.manager.save(address);
 
       const user = this.userRepository.create({
         email: createAuthDto.email,
@@ -150,6 +161,15 @@ export class AuthService {
             first_name: true,
             last_name: true,
             phone_number: true,
+            addresses: {
+              address_id: true,
+              area: true,
+              town: true,
+              county: true,
+              country: true,
+              type: true,
+              isDefault: true,
+            },
           },
         },
       });
