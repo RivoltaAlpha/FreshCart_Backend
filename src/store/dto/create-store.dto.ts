@@ -2,20 +2,15 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsString,
-  IsDate,
   IsNumber,
   IsOptional,
 } from 'class-validator';
-export class CreateStoreDto {
-  @ApiProperty()
-  @IsOptional()
-  @IsNumber()
-  store_id: number;
 
+export class CreateStoreDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  owner_id: number; // user_id of the store owner
+  owner_id: number;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -32,54 +27,58 @@ export class CreateStoreDto {
   @IsString()
   contact_info: string;
 
+  // Address fields
   @ApiProperty()
-  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  area: string;
+
+  @ApiProperty()
   @IsString()
   country: string;
 
   @ApiProperty()
-  @IsOptional()
   @IsString()
+  @IsNotEmpty()
   town: string;
 
   @ApiProperty()
-  @IsOptional()
   @IsString()
-  city: string;
+  @IsNotEmpty()
+  county: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  latitude?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  longitude?: number;
+
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   image_url?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsNumber()
   rating?: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
-  @IsString()
-  total_reviews?: string;
+  @IsNumber()
+  total_reviews?: number;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  @IsOptional()
   delivery_fee: number;
 
+  @ApiProperty({ required: false })
   @IsOptional()
-  @ApiProperty()
-  @IsNotEmpty()
-  store_code: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsDate()
-  created_at: Date;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsDate()
-  updated_at: Date;
+  @IsString()
+  store_code?: string;
 }

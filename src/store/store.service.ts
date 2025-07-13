@@ -1,58 +1,130 @@
-import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Store } from './entities/store.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
+import { Address } from 'src/addresses/entities/address.entity';
 
 @Injectable()
 export class StoreService {
   constructor(
     @InjectRepository(Store)
     private storeRepository: Repository<Store>,
-    
+
+    @InjectRepository(Address)
+    private addressRepository: Repository<Address>,
+
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    private dataSource: DataSource,
   ) {}
 
   async create(createStoreDto: CreateStoreDto): Promise<Store> {
-    // Check if user exists and has Store role
-    const user = await this.userRepository.findOne({
-      where: { user_id: createStoreDto.owner_id },
-      select: ['user_id', 'role'],
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (!user) {
-      throw new NotFoundException(`User with ID ${createStoreDto.owner_id} not found`);
+    try {
+      const user = await this.userRepository.findOne({
+        where: { user_id: createStoreDto.owner_id },
+        select: ['user_id', 'role'],
+      });
+
+      if (!user) {
+        throw new NotFoundException(
+          `User with ID ${createStoreDto.owner_id} not found`,
+        );
+      }
+
+      if (user.role !== 'Store') {
+        throw new ForbiddenException(
+          'Only users with Store role can create stores',
+        );
+      }
+
+      const existingStore = await this.storeRepository.findOne({
+        where: { owner_id: createStoreDto.owner_id },
+      });
+
+      if (existingStore) {
+        throw new ConflictException('User already has a store');
+      }
+
+      const store = this.storeRepository.create({
+        owner_id: createStoreDto.owner_id,
+        name: createStoreDto.name,
+        description: createStoreDto.description,
+        contact_info: createStoreDto.contact_info,
+        delivery_fee: createStoreDto.delivery_fee,
+        image_url: createStoreDto.image_url,
+        store_code: createStoreDto.store_code,
+        rating:
+          typeof createStoreDto.rating === 'number' ? createStoreDto.rating : 0,
+        total_reviews:
+          typeof createStoreDto.total_reviews === 'number'
+            ? createStoreDto.total_reviews
+            : 0,
+      });
+      const savedStore = await queryRunner.manager.save(store);
+
+      const address = this.addressRepository.create({
+        area: createStoreDto.area,
+        town: createStoreDto.town,
+        county: createStoreDto.county,
+        country: createStoreDto.country || 'Kenya',
+        type: 'store',
+        isDefault: true,
+        store: savedStore,
+      });
+      const savedAddress = await queryRunner.manager.save(address);
+
+      // Step 3: Update the store with the address_id
+      savedStore.address = savedAddress;
+      const finalStore = await queryRunner.manager.save(savedStore);
+      
+      await queryRunner.commitTransaction();
+
+      const createdStore = await this.storeRepository.findOne({
+        where: { store_id: finalStore.store_id },
+        relations: ['owner', 'owner.profile', 'address'],
+        select: {
+          owner: {
+            user_id: true,
+            email: true,
+            profile: {
+              first_name: true,
+              last_name: true,
+              phone_number: true,
+            },
+          },
+        },
+      });
+      if (!createdStore) {
+        throw new NotFoundException(
+          `Store with ID ${finalStore.store_id} not found`,
+        );
+      }
+
+      return createdStore;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    if (user.role !== 'Store') {
-      throw new ForbiddenException('Only users with Store role can create stores');
-    }
-
-    // Check if user already has a store
-    const existingStore = await this.storeRepository.findOne({
-      where: { owner_id: createStoreDto.owner_id },
-    });
-
-    if (existingStore) {
-      throw new ConflictException('User already has a store');
-    }
-
-    const store = this.storeRepository.create({
-      ...createStoreDto,
-      country: createStoreDto.country || 'Kenya',
-      rating: typeof createStoreDto.rating === 'number' ? createStoreDto.rating : 0,
-      total_reviews: typeof createStoreDto.total_reviews === 'number' ? createStoreDto.total_reviews : 0,
-    });
-
-    return await this.storeRepository.save(store);
   }
 
   async findAll(): Promise<Store[]> {
     return await this.storeRepository.find({
-      relations: ['owner', 'owner.profile'],
+      relations: ['owner', 'owner.profile', 'address'],
       select: {
         owner: {
           user_id: true,
@@ -69,13 +141,15 @@ export class StoreService {
   }
 
   async findByLocation(city: string, country?: string): Promise<Store[]> {
-    const query = this.storeRepository.createQueryBuilder('store')
+    const query = this.storeRepository
+      .createQueryBuilder('store')
       .leftJoinAndSelect('store.owner', 'owner')
       .leftJoinAndSelect('owner.profile', 'profile')
-      .where('LOWER(store.city) = LOWER(:city)', { city });
+      .leftJoinAndSelect('store.address', 'address')
+      .where('LOWER(address.town) = LOWER(:city)', { city });
 
     if (country) {
-      query.andWhere('LOWER(store.country) = LOWER(:country)', { country });
+      query.andWhere('LOWER(address.country) = LOWER(:country)', { country });
     }
 
     return await query.orderBy('store.rating', 'DESC').getMany();
@@ -84,7 +158,7 @@ export class StoreService {
   async findOne(id: number): Promise<Store> {
     const store = await this.storeRepository.findOne({
       where: { store_id: id },
-      relations: ['owner', 'owner.profile', 'products'],
+      relations: ['owner', 'owner.profile', 'products', 'address'],
       select: {
         owner: {
           user_id: true,
@@ -105,7 +179,11 @@ export class StoreService {
     return store;
   }
 
-  async update(id: number, updateStoreDto: UpdateStoreDto, userId?: number): Promise<Store> {
+  async update(
+    id: number,
+    updateStoreDto: UpdateStoreDto,
+    userId?: number,
+  ): Promise<Store> {
     const store = await this.findOne(id);
 
     // Check if user is the owner (for non-admin users)
@@ -115,14 +193,15 @@ export class StoreService {
 
     Object.assign(store, updateStoreDto);
     await this.storeRepository.save(store);
-    
+
     return await this.findOne(id);
   }
 
   async updateRating(id: number, rating: number): Promise<Store> {
     const store = await this.findOne(id);
 
-    const totalReviews = typeof store.total_reviews === 'number' ? store.total_reviews : 0;
+    const totalReviews =
+      typeof store.total_reviews === 'number' ? store.total_reviews : 0;
     const totalRating = (store?.rating ?? 0) * totalReviews + rating;
     store.total_reviews = totalReviews + 1;
     store.rating = totalRating / store.total_reviews;
@@ -143,9 +222,33 @@ export class StoreService {
   }
 
   async findByOwnerId(ownerId: number): Promise<Store | null> {
+    const store = await this.storeRepository.findOne({
+      where: { owner_id: ownerId },
+      relations: ['owner', 'owner.profile', 'address'],
+      select: {
+        owner: {
+          user_id: true,
+          email: true,
+          profile: {
+            first_name: true,
+            last_name: true,
+            phone_number: true,
+          },
+        },
+      },
+    });
+
+    if (!store) {
+      throw new NotFoundException(`Store not found for owner ID ${ownerId}`);
+    }
+
+    return store;
+  }
+
+  async findByOwnerIdOrNull(ownerId: number): Promise<Store | null> {
     return await this.storeRepository.findOne({
       where: { owner_id: ownerId },
-      relations: ['owner', 'owner.profile'],
+      relations: ['owner', 'owner.profile', 'address'],
       select: {
         owner: {
           user_id: true,
@@ -159,5 +262,4 @@ export class StoreService {
       },
     });
   }
-
 }

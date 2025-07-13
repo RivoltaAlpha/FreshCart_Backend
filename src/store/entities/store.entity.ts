@@ -1,7 +1,16 @@
+import { Address } from 'src/addresses/entities/address.entity';
 import { Inventory } from 'src/inventories/entities/inventory.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Store {
@@ -16,15 +25,6 @@ export class Store {
 
   @Column({ type: 'varchar', length: 255 })
   description: string;
-
-  @Column({ type: 'varchar', length: 100 })
-  city?: string;
-
-  @Column({ type: 'varchar', length: 100 })
-  town?: string;
-
-  @Column({ type: 'varchar', length: 100, default: 'Kenya' })
-  country?: string;
 
   @Column({ type: 'varchar', length: 255 })
   contact_info: string;
@@ -63,7 +63,13 @@ export class Store {
   @OneToMany(() => Inventory, (inventory) => inventory.store)
   inventories: Inventory[];
 
-    getProducts?(): Promise<any[]> {
+  getProducts?(): Promise<any[]> {
     return Promise.resolve([]);
   }
+  @OneToOne(() => Address, (address) => address.store, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'address_id' })
+  address?: Address;
 }
