@@ -3,6 +3,14 @@
 /node_modules
 /build
 
+data.json
+queries.sql
+deliveries.http
+auth.http
+products.http
+deliveries.http
+deliveries.http
+
 # Logs
 logs
 *.log
