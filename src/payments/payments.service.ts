@@ -1,5 +1,9 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { CreatePaymentDto } from './dto/create-payment.dto';
+import {
+  CreatePaymentDto,
+  FetchTransactionResponse,
+  VerifyResponse,
+} from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,60 +18,6 @@ import { OrdersService } from 'src/orders/orders.service';
 import { Order, OrderStatus } from 'src/orders/entities/order.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-export interface VerifyResponse {
-  status: boolean;
-  message: string;
-  data: {
-    id: number;
-    domain: string;
-    status: string;
-    reference: string;
-    amount: number;
-    gateway_response: string;
-    created_at: string;
-    channel: string;
-    currency: string;
-    fees: number;
-    customer: {
-      id: number;
-      first_name: string | null;
-      last_name: string | null;
-      email: string;
-      customer_code: string;
-    };
-    order_id: number | null;
-    paidAt: string;
-    createdAt: string;
-    requested_amount: number;
-    transaction_date: string;
-  };
-}
-
-interface FetchTransactionResponse {
-  status: boolean;
-  message: string;
-  data: {
-    id: number;
-    status: string;
-    reference: string;
-    receipt_number: string | null;
-    amount: number;
-    gateway_response: string;
-    created_at: string;
-    channel: string;
-    currency: string;
-    fees_split: any | null;
-    authorization: {
-      channel: string;
-      card_type: string;
-    };
-    order_id: number | null;
-    paidAt: string;
-    createdAt: string;
-    requested_amount: number;
-  };
-}
-
 @Injectable()
 export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
@@ -78,7 +28,7 @@ export class PaymentsService {
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
     private ordersService: OrdersService,
-    private eventEmitter: EventEmitter2,
+    // private eventEmitter: EventEmitter2,
   ) {}
 
   async initializePayment(createPaymentDto: CreatePaymentDto) {
@@ -211,33 +161,38 @@ export class PaymentsService {
           });
 
           // get order delivery address
-          const deliveryAddress = order?.delivery_address;
-
+         const deliveryAddress = order?.delivery_address;
+          
           if (order && order.status !== OrderStatus.CONFIRMED) {
             await this.ordersService.confirmOrderAfterPayment(payment.order_id);
-
-            // Emit payment completed event instead of directly calling delivery service
-            this.eventEmitter.emit('payment.completed', {
-              orderId: payment.order_id,
-              paymentId: payment.payment_id,
-              userId: payment.user_id,
-              deliveryAddress,
-              amount: payment.amount,
-              currency: payment.currency,
-              transactionId: payment.transaction_id,
-              paymentReference: payment.payment_reference,
-              completed_at: new Date(),
-            });
-
-            this.logger.log(
-              `Payment completed event emitted for order ${payment.order_id}`,
-            );
           }
         }
         // Clear authorization_url after completion as it's no longer needed
         payment.authorization_url = undefined;
-
+        
         await this.paymentsRepository.save(payment);
+        
+        // // Only emit after save is complete
+        // if (
+        //   payment.status === PaymentStatus.COMPLETED &&
+        //   transactionData.status === 'success'
+        // ) {
+        //   // ... emit event ...
+        //   this.eventEmitter.emit('payment.completed', {
+        //     orderId: payment.order_id,
+        //     paymentId: payment.payment_id,
+        //     userId: payment.user_id,
+        //     amount: payment.amount,
+        //     currency: payment.currency,
+        //     transactionId: payment.transaction_id,
+        //     paymentReference: payment.payment_reference,
+        //     completed_at: new Date(),
+        //   });
+
+        //   this.logger.log(
+        //     `Payment completed event emitted for order ${payment.order_id}`,
+        //   );
+        // }
       }
 
       return response.data;
@@ -320,3 +275,5 @@ export class PaymentsService {
     return `${prefix}${sequence.toString().padStart(4, '0')}`;
   }
 }
+
+export type { VerifyResponse, FetchTransactionResponse };
