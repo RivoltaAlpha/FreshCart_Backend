@@ -83,6 +83,37 @@ export class ProductsService {
     }
   }
 
+  // find byId
+  async findByIds(id: number): Promise<Product> {
+    const product = await this.productsRepository.findOne({
+      where: { product_id: id },
+      relations: ['category', 'inventory', 'inventory.store'],
+      select: {
+        inventory: {
+          inventory_id: true,
+          stock_qty: true,
+          quantity_reserved: true,
+          reorder_level: true,
+          store: {
+            store_id: true,
+            name: true,
+            rating: true,
+            owner: {
+              user_id: true,
+              email: true,
+            },
+          },
+        },
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    return product;
+  }
+
   async findAll(): Promise<{ products: Product[] }> {
     const products = await this.productsRepository.find({
       relations: ['category', 'inventory', 'inventory.store'],

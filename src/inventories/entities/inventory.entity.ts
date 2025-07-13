@@ -23,6 +23,9 @@ export class Inventory {
   @PrimaryGeneratedColumn()
   inventory_id: number;
 
+  @Column({ type: 'varchar', length: 255 })
+  name: string;
+
   @Column({ type: 'int' })
   store_id: number;
 

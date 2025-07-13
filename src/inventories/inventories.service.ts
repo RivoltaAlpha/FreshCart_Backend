@@ -37,12 +37,20 @@ export class InventoriesService {
       );
     }
 
+    // Fetch products by IDs if provided
+    let products: Product[] = [];
+    if (createInventoryDto.products && createInventoryDto.products.length > 0) {
+      products = await this.productRepository.findByIds(
+        createInventoryDto.products,
+      );
+    }
+
     // Create inventory without requiring existing products
     const inventory = this.inventoryRepository.create({
       ...createInventoryDto,
       last_restocked: new Date(),
       store: store,
-      products: [], // Initialize empty products array
+      products: products,
     });
 
     return await this.inventoryRepository.save(inventory);
@@ -450,9 +458,7 @@ export class InventoriesService {
   }
 
   // get all store products in all inventories
-  async getAllStoreProductsInInventories(
-    storeId: number,
-  ): Promise<Product[]> {
+  async getAllStoreProductsInInventories(storeId: number): Promise<Product[]> {
     const inventories = await this.getStoreInventories(storeId);
     const products: Product[] = [];
 
@@ -467,5 +473,3 @@ export class InventoriesService {
     return products;
   }
 }
-
-
