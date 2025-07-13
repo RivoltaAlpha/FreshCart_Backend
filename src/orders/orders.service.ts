@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -17,9 +18,12 @@ import {
 } from './dto/create-order.dto';
 import { InventoriesService } from 'src/inventories/inventories.service';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class OrdersService {
+    private readonly logger = new Logger(OrdersService.name);
+
   constructor(
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
@@ -35,7 +39,7 @@ export class OrdersService {
 
     @InjectRepository(User)
     private userRepository: Repository<User>,
-
+    private eventEmitter: EventEmitter2,
     private inventoriesService: InventoriesService,
     private dataSource: DataSource,
   ) {}
@@ -200,7 +204,7 @@ export class OrdersService {
     return await this.updateStatus(id, { status: OrderStatus.CONFIRMED });
   }
 
- async confirmOrderAfterPayment(order_id: number): Promise<Order> {
+  async confirmOrderAfterPayment(order_id: number): Promise<Order> {
     return await this.updateStatus(order_id, { status: OrderStatus.CONFIRMED });
   }
 
@@ -284,18 +288,10 @@ export class OrdersService {
   }
 
   async updateStatus(
-    id: number,
+    order_id: number,
     updateStatusDto: UpdateOrderStatusDto,
-    userId?: number,
   ): Promise<Order> {
-    const order = await this.findOne(id);
-
-    // Check permissions
-    if (userId && order.store.owner.user_id !== userId) {
-      throw new ForbiddenException(
-        'You can only update orders for your own store',
-      );
-    }
+    const order = await this.findOne(order_id);
 
     // Validate status transition
     this.validateStatusTransition(order.status, updateStatusDto.status);
@@ -312,6 +308,11 @@ export class OrdersService {
       case OrderStatus.PREPARING:
         updateData.prepared_at = new Date();
         break;
+      case OrderStatus.READY_FOR_PICKUP:
+        updateData.finished_at = new Date();
+        this.logger.log(`Emitting order.readyForPickup for order ${order_id}`);
+        this.eventEmitter.emit('order.readyForPickup', { orderId: order_id });
+        break;
       case OrderStatus.IN_TRANSIT:
         updateData.picked_up_at = new Date();
         updateData.driver_id = updateStatusDto.driver_id;
@@ -327,8 +328,8 @@ export class OrdersService {
         break;
     }
 
-    await this.ordersRepository.update(id, updateData);
-    return await this.findOne(id);
+    await this.ordersRepository.update(order_id, updateData);
+    return await this.findOne(order_id);
   }
 
   async cancelOrder(

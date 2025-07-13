@@ -41,10 +41,10 @@ export class Delivery {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   delivery_fee: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'decimal', precision: 12, scale: 2, nullable: true })
   route_distance?: number; // in meters
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'decimal', precision: 12, scale: 2, nullable: true })
   route_duration?: number; // in seconds
 
   @Column({ type: 'text', nullable: true })

@@ -10,11 +10,12 @@ import { Profile } from 'src/profile/entities/profile.entity';
 import { Address } from 'src/addresses/entities/address.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { PaymentEventListener } from './listeners/payment.listeners';
+import { OrderEventListener } from 'src/orders/listeners/otder.listeners';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Delivery, User, Store, Payment, Profile, Address, Order])],
   controllers: [DeliveriesController],
-  providers: [DeliveriesService, PaymentEventListener],
+  providers: [DeliveriesService, PaymentEventListener, OrderEventListener],
   exports: [DeliveriesService],
 })
 export class DeliveriesModule {}

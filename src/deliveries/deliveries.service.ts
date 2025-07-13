@@ -10,6 +10,7 @@ import { Store } from 'src/store/entities/store.entity';
 import { Payment, PaymentStatus } from 'src/payments/entities/payment.entity';
 import { Profile } from 'src/profile/entities/profile.entity';
 import { Address } from 'src/addresses/entities/address.entity';
+import axios from 'axios';
 
 interface RouteInfo {
   coordinates: number[][];
@@ -179,49 +180,37 @@ export class DeliveriesService {
   async getGeocodedLocation(
     location: string,
   ): Promise<{ latitude: number; longitude: number } | null> {
-    return new Promise((resolve, reject) => {
-      const request = require('request');
+    try {
       const API_KEY = process.env.OPENROUTESERVICE_API_KEY;
-
-      request(
+      const response = await axios.get(
+        `https://api.openrouteservice.org/geocode/search?api_key=${API_KEY}&text=${encodeURIComponent(location)}`,
         {
-          method: 'GET',
-          url: `https://api.openrouteservice.org/geocode/search?api_key=${API_KEY}&text=${encodeURIComponent(location)}`,
           headers: {
             Accept:
               'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
           },
         },
-        function (error, response, body) {
-          if (error) {
-            console.error('Geocoding error:', error);
-            reject(error);
-            return;
-          }
-
-          try {
-            const data = JSON.parse(body);
-
-            if (data.features && data.features.length > 0) {
-              const firstFeature = data.features[0];
-
-              if (firstFeature.geometry && firstFeature.geometry.coordinates) {
-                const [longitude, latitude] = firstFeature.geometry.coordinates;
-                resolve({ latitude, longitude });
-              } else {
-                resolve(null);
-              }
-            } else {
-              console.log('No geocoding results for:', location);
-              resolve(null);
-            }
-          } catch (parseError) {
-            console.error('Error parsing geocoding response:', parseError);
-            reject(parseError);
-          }
-        },
       );
-    });
+
+      const data = response.data;
+
+      if (data.features && data.features.length > 0) {
+        const firstFeature = data.features[0];
+
+        if (firstFeature.geometry && firstFeature.geometry.coordinates) {
+          const [longitude, latitude] = firstFeature.geometry.coordinates;
+          return { latitude, longitude };
+        } else {
+          return null;
+        }
+      } else {
+        this.logger.warn(`No geocoding results for: ${location}`);
+        return null;
+      }
+    } catch (error) {
+      this.logger.error('Geocoding error:', error);
+      return null;
+    }
   }
 
   // Enhanced directions method (existing)
@@ -229,56 +218,44 @@ export class DeliveriesService {
     start: { latitude: number; longitude: number },
     end: { latitude: number; longitude: number },
   ): Promise<RouteInfo | null> {
-    return new Promise((resolve, reject) => {
-      const request = require('request');
+    try {
       const API_KEY = process.env.OPENROUTESERVICE_API_KEY;
-
-      request(
+      const response = await axios.get(
+        `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${API_KEY}&start=${start.longitude},${start.latitude}&end=${end.longitude},${end.latitude}`,
         {
-          method: 'GET',
-          url: `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${API_KEY}&start=${start.longitude},${start.latitude}&end=${end.longitude},${end.latitude}`,
           headers: {
             Accept:
               'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
           },
         },
-        function (error, response, body) {
-          if (error) {
-            console.error('Directions error:', error);
-            reject(error);
-            return;
-          }
-
-          try {
-            const data = JSON.parse(body);
-
-            if (data.features && data.features.length > 0) {
-              const route = data.features[0];
-
-              if (route.properties && route.geometry) {
-                const routeInfo: RouteInfo = {
-                  coordinates: route.geometry.coordinates,
-                  distance: route.properties.segments?.[0]?.distance || 0,
-                  duration: route.properties.segments?.[0]?.duration || 0,
-                  summary: route.properties.summary || {},
-                  geometry: route.geometry,
-                  bbox: data.bbox || route.bbox,
-                };
-
-                resolve(routeInfo);
-              } else {
-                resolve(null);
-              }
-            } else {
-              resolve(null);
-            }
-          } catch (parseError) {
-            console.error('Error parsing directions response:', parseError);
-            reject(parseError);
-          }
-        },
       );
-    });
+
+      const data = response.data;
+
+      if (data.features && data.features.length > 0) {
+        const route = data.features[0];
+
+        if (route.properties && route.geometry) {
+          const routeInfo: RouteInfo = {
+            coordinates: route.geometry.coordinates,
+            distance: route.properties.segments?.[0]?.distance || 0,
+            duration: route.properties.segments?.[0]?.duration || 0,
+            summary: route.properties.summary || {},
+            geometry: route.geometry,
+            bbox: data.bbox || route.bbox,
+          };
+
+          return routeInfo;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      this.logger.error('Directions error:', error);
+      return null;
+    }
   }
 
   async getStoreCoordinates(
@@ -311,6 +288,20 @@ export class DeliveriesService {
 
   // 6. Complete delivery workflow
   async createDeliveryWorkflow(orderId: number): Promise<any> {
+    // Prevent duplicate deliveries for the same order
+    this.logger.log(`Starting delivery workflow for order ${orderId}`);
+    const existingDelivery = await this.deliveriesRepository.findOne({
+      where: { order_id: orderId },
+    });
+
+    if (existingDelivery) {
+      this.logger.warn(`Delivery already exists for order ${orderId}`);
+      return {
+        delivery: existingDelivery,
+        message: 'Delivery already exists for this order',
+      };
+    }
+
     try {
       // Step 1: Verify payment
       const isPaymentCompleted = await this.verifyOrderPayment(orderId);
@@ -382,6 +373,7 @@ export class DeliveriesService {
         status: OrderStatus.IN_TRANSIT,
       });
 
+      this.logger.log(`Finished delivery workflow for order ${orderId}`);
       // Return complete delivery information
       return {
         delivery: savedDelivery,

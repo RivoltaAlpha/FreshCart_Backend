@@ -32,7 +32,7 @@ export class OrdersController {
     return this.ordersService.findOne(id);
   }
 
-  @Patch('update/:id')
+  @Patch('update-status/:id')
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   update(@Param('id') id: number, @Body() updateOrderDto: UpdateOrderStatusDto) {
     return this.ordersService.updateStatus(id, updateOrderDto);
