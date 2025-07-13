@@ -65,8 +65,8 @@ export class UsersService {
         user_id: true,
         email: true,
         role: true,
-        createdAt: true,
-        updatedAt: true,
+        created_at: true,
+        updated_at: true,
         profile: {
           profile_id: true,
           first_name: true,
@@ -74,10 +74,9 @@ export class UsersService {
           phone_number: true,
           addresses: {
             address_id: true,
-            street: true,
+            area: true,
             town: true,
             county: true,
-            postal_code: true,
             country: true,
             type: true,
             isDefault: true,
