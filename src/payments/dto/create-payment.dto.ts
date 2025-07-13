@@ -84,3 +84,57 @@ export class CreatePaymentDto {
   @IsOptional()
   refunded_amount: number;
 }
+
+export interface VerifyResponse {
+  status: boolean;
+  message: string;
+  data: {
+    id: number;
+    domain: string;
+    status: string;
+    reference: string;
+    amount: number;
+    gateway_response: string;
+    created_at: string;
+    channel: string;
+    currency: string;
+    fees: number;
+    customer: {
+      id: number;
+      first_name: string | null;
+      last_name: string | null;
+      email: string;
+      customer_code: string;
+    };
+    order_id: number | null;
+    paidAt: string;
+    createdAt: string;
+    requested_amount: number;
+    transaction_date: string;
+  };
+}
+
+export interface FetchTransactionResponse {
+  status: boolean;
+  message: string;
+  data: {
+    id: number;
+    status: string;
+    reference: string;
+    receipt_number: string | null;
+    amount: number;
+    gateway_response: string;
+    created_at: string;
+    channel: string;
+    currency: string;
+    fees_split: any | null;
+    authorization: {
+      channel: string;
+      card_type: string;
+    };
+    order_id: number | null;
+    paidAt: string;
+    createdAt: string;
+    requested_amount: number;
+  };
+}
