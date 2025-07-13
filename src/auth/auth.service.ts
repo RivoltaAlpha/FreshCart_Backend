@@ -5,7 +5,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateAuthDto } from './dto/login.dto';
+import { CreateAuthDto } from './dto/signup.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role, User } from 'src/users/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -117,7 +117,7 @@ export class AuthService {
       });
       const savedProfile = await queryRunner.manager.save(profile);
 
-      // Step 2: Create address 
+      // Step 2: Create address
       const address = this.addressRepository.create({
         area: createAuthDto.area,
         town: createAuthDto.town,
@@ -125,7 +125,7 @@ export class AuthService {
         country: createAuthDto.country || 'Kenya',
         type: 'home',
         isDefault: true,
-        profile: savedProfile, 
+        profile: savedProfile,
       });
 
       await queryRunner.manager.save(address);

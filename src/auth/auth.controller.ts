@@ -1,13 +1,6 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Param,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
+import { Controller, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/login.dto';
+import { CreateAuthDto } from './dto/signup.dto';
 import { AtGuard } from './guards/at.guards';
 import { RtGuard } from './guards/rt.guards';
 import { Public } from './decorators/public.decorator';
@@ -24,12 +17,12 @@ export interface RequestWithUser extends Request {
 }
 
 @ApiBearerAuth('access-token')
-@ApiTags('Auth') 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public() 
+  @Public()
   @Post('signup')
   create(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.SignUp(createAuthDto);
