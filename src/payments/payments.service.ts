@@ -12,16 +12,7 @@ import {
 import axios from 'axios';
 import { OrdersService } from 'src/orders/orders.service';
 import { Order, OrderStatus } from 'src/orders/entities/order.entity';
-
-interface PaymentResponse {
-  status: string;
-  message: string;
-  data: {
-    authorization_url: string;
-    access_code: string;
-    reference: string;
-  };
-}
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 export interface VerifyResponse {
   status: boolean;
@@ -87,6 +78,7 @@ export class PaymentsService {
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
     private ordersService: OrdersService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async initializePayment(createPaymentDto: CreatePaymentDto) {
@@ -218,8 +210,28 @@ export class PaymentsService {
             where: { order_id: payment.order_id },
           });
 
+          // get order delivery address
+          const deliveryAddress = order?.delivery_address;
+
           if (order && order.status !== OrderStatus.CONFIRMED) {
             await this.ordersService.confirmOrderAfterPayment(payment.order_id);
+
+            // Emit payment completed event instead of directly calling delivery service
+            this.eventEmitter.emit('payment.completed', {
+              orderId: payment.order_id,
+              paymentId: payment.payment_id,
+              userId: payment.user_id,
+              deliveryAddress,
+              amount: payment.amount,
+              currency: payment.currency,
+              transactionId: payment.transaction_id,
+              paymentReference: payment.payment_reference,
+              completed_at: new Date(),
+            });
+
+            this.logger.log(
+              `Payment completed event emitted for order ${payment.order_id}`,
+            );
           }
         }
         // Clear authorization_url after completion as it's no longer needed

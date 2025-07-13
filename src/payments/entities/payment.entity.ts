@@ -1,4 +1,10 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Order } from 'src/orders/entities/order.entity';
 import { User } from 'src/users/entities/user.entity';
 
@@ -27,7 +33,6 @@ export enum PaymentGateway {
   FLUTTERWAVE = 'flutterwave',
   CASH = 'cash',
 }
-
 
 @Entity()
 export class Payment {
@@ -60,7 +65,7 @@ export class Payment {
 
   @Column({ type: 'enum', enum: PaymentGateway })
   gateway: PaymentGateway;
-  
+
   @Column({ type: 'varchar', length: 255, unique: true })
   payment_reference: string;
 
@@ -68,25 +73,38 @@ export class Payment {
   status: PaymentStatus;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  transaction_id?: string; 
+  transaction_id?: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   gateway_reference?: string;
 
   @Column({ type: 'json', nullable: true })
-  gateway_response?: any; 
+  gateway_response?: any;
 
   @Column({ type: 'text', nullable: true })
   failure_reason?: string;
-  
+
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   refunded_amount: number;
 
-  @Column({ type: 'timestamp', nullable: true, default: () => 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   processed_at?: Date;
 
   @Column({ type: 'timestamp', nullable: true })
   failed_at?: Date;
+
+  @Column({ type: 'boolean', default: false })
+  delivery_initiated: boolean;
+
+  @Column({ type: 'int', nullable: true })
+  delivery_reference?: number;
+
+  @Column({ type: 'text', nullable: true })
+  delivery_error?: string;
 
   @Column({
     type: 'timestamp',
@@ -102,4 +120,19 @@ export class Payment {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user: User;
+}
+
+export interface PaymentCompletedEvent {
+  orderId: number;
+  paymentId: number;
+  userId: number;
+  completed_at: Date;
+}
+
+export interface PaymentFailedEvent {
+  orderId: number;
+  paymentId: number;
+  userId: number;
+  failure_reason: string;
+  failed_at: Date;
 }

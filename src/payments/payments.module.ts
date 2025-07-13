@@ -5,12 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Payment } from './entities/payment.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { OrdersModule } from 'src/orders/orders.module';
-import { DeliveriesModule } from 'src/deliveries/deliveries.module';
+import { Address } from 'src/addresses/entities/address.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Payment, Order]),
+  imports: [TypeOrmModule.forFeature([Payment, Order, Address]),
     OrdersModule,
-    DeliveriesModule,
   ],
   controllers: [PaymentsController],
   providers: [PaymentsService],
