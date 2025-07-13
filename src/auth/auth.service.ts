@@ -190,18 +190,27 @@ export class AuthService {
     const foundUser = await this.userRepository.findOne({
       where: { email: loginDto.email },
       relations: ['profile'],
-      select: {
-        user_id: true,
-        email: true,
-        password: true,
-        role: true,
-        profile: {
-          profile_id: true,
-          first_name: true,
-          last_name: true,
-          phone_number: true,
+        select: {
+          user_id: true,
+          email: true,
+          role: true,
+          password: true,
+          profile: {
+            profile_id: true,
+            first_name: true,
+            last_name: true,
+            phone_number: true,
+            addresses: {
+              address_id: true,
+              area: true,
+              town: true,
+              county: true,
+              country: true,
+              type: true,
+              isDefault: true,
+            },
+          },
         },
-      },
     });
 
     if (!foundUser) {
