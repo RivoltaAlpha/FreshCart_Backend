@@ -106,7 +106,7 @@ export class OrdersService {
           0,
         );
         if (totalStock < item.quantity) {
-          throw new BadRequestException(
+          throw new NotFoundException(
             `Insufficient stock for product: ${product.name}. Available: ${totalStock}, Requested: ${item.quantity}`,
           );
         }
