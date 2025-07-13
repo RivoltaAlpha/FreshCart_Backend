@@ -14,18 +14,26 @@ import { DeliveriesService } from './deliveries.service';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { UpdateDeliveryDto } from './dto/update-delivery.dto';
 import { DeliveryStatus } from './entities/delivery.entity';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorators/role.decorators';
+import { Role } from 'src/users/entities/user.entity';
+import { Public } from 'src/auth/decorators/public.decorator';
 
+@ApiBearerAuth('access-token')
+@ApiTags('Deliveries')
 @Controller('deliveries')
 export class DeliveriesController {
   constructor(private readonly deliveriesService: DeliveriesService) {}
 
   @Post()
+  @Public()
   create(@Body() createDeliveryDto: CreateDeliveryDto) {
     return this.deliveriesService.create(createDeliveryDto);
   }
 
   // Create delivery workflow for an order
   @Post('workflow/:orderId')
+  @Public()
   async createDeliveryWorkflow(
     @Param('orderId', ParseIntPipe) orderId: number,
   ) {
@@ -41,6 +49,7 @@ export class DeliveriesController {
 
   // Get delivery details by order ID
   @Get('order/:orderId')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   async getDeliveryByOrder(@Param('orderId', ParseIntPipe) orderId: number) {
     try {
       return await this.deliveriesService.deliveryDetails(orderId);
@@ -54,6 +63,7 @@ export class DeliveriesController {
 
   // Update delivery status
   @Patch(':deliveryId/status')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   async updateDeliveryStatus(
     @Param('deliveryId', ParseIntPipe) deliveryId: number,
     @Body('status') status: DeliveryStatus,
@@ -73,6 +83,7 @@ export class DeliveriesController {
 
   // Verify order payment status
   @Get('payment/verify/:orderId')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   async verifyOrderPayment(@Param('orderId', ParseIntPipe) orderId: number) {
     try {
       const isVerified =
@@ -88,6 +99,7 @@ export class DeliveriesController {
 
   // Get available drivers
   @Get('drivers/available')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   async getAvailableDrivers() {
     try {
       return await this.deliveriesService.findAvailableDrivers();
@@ -101,6 +113,7 @@ export class DeliveriesController {
 
   // Find best driver for a store
   @Get('drivers/best-match/:storeId')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   async findBestDriverForStore(
     @Param('storeId', ParseIntPipe) storeId: number,
   ) {
@@ -124,6 +137,7 @@ export class DeliveriesController {
 
   // Get route information between two points
   @Post('route/calculate')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   async calculateRoute(
     @Body()
     routeData: {
@@ -159,6 +173,7 @@ export class DeliveriesController {
 
   // Get coordinates for a user address
   @Get('coordinates/user/:userId')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   async getUserCoordinates(@Param('userId', ParseIntPipe) userId: number) {
     try {
       const coordinates =
@@ -174,6 +189,7 @@ export class DeliveriesController {
 
   // Geocode an address
   @Post('geocode')
+  @Public()
   async geocodeAddress(@Body('address') address: string) {
     try {
       if (!address) {
@@ -193,6 +209,7 @@ export class DeliveriesController {
 
   // Get all deliveries for a specific driver
   @Get('driver/:driverId')
+  @Roles(Role.Store, Role.Admin, Role.Driver)
   async getDriverDeliveries(@Param('driverId', ParseIntPipe) driverId: number) {
     try {
       const deliveries = await this.deliveriesService.findAll();
@@ -210,6 +227,7 @@ export class DeliveriesController {
 
   // Get all deliveries for a specific customer
   @Get('customer/:customerId')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   async getCustomerDeliveries(
     @Param('customerId', ParseIntPipe) customerId: number,
   ) {
@@ -229,6 +247,7 @@ export class DeliveriesController {
 
   // Get deliveries by status
   @Get('status/:status')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   async getDeliveriesByStatus(@Param('status') status: DeliveryStatus) {
     try {
       const deliveries = await this.deliveriesService.findAll();

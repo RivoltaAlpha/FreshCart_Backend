@@ -8,8 +8,6 @@ import { Order, OrderStatus } from 'src/orders/entities/order.entity';
 import { Delivery, DeliveryStatus } from './entities/delivery.entity';
 import { Store } from 'src/store/entities/store.entity';
 import { Payment, PaymentStatus } from 'src/payments/entities/payment.entity';
-import { Profile } from 'src/profile/entities/profile.entity';
-import { Address } from 'src/addresses/entities/address.entity';
 import axios from 'axios';
 
 interface RouteInfo {
@@ -42,10 +40,6 @@ export class DeliveriesService {
     private storesRepository: Repository<Store>,
     @InjectRepository(Payment)
     private paymentsRepository: Repository<Payment>,
-    @InjectRepository(Profile)
-    private profilesRepository: Repository<Profile>,
-    @InjectRepository(Address)
-    private addressesRepository: Repository<Address>,
   ) {}
 
   async create(createDeliveryDto: CreateDeliveryDto) {
@@ -472,7 +466,7 @@ export class DeliveriesService {
 
   findAll() {
     return this.deliveriesRepository.find({
-      relations: ['order', 'driver', 'driver.profile', 'user', 'user.profile'],
+      relations: ['order', 'driver', 'driver.profile', 'user', 'user.profile', 'user.profile.addresses'],
     });
   }
 
