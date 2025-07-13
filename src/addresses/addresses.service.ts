@@ -17,13 +17,6 @@ export class AddressesService {
     return await this.addressRepository.save(address);
   }
 
-  async findByProfileId(profile_id: number): Promise<Address[]> {
-    return await this.addressRepository.find({
-      where: { profile_id },
-      order: { isDefault: 'DESC', created_at: 'ASC' },
-    });
-  }
-
   async findOne(addressId: number): Promise<Address> {
     const address = await this.addressRepository.findOne({
       where: { address_id: addressId },
@@ -47,21 +40,21 @@ export class AddressesService {
     await this.addressRepository.remove(address);
   }
 
-  async setDefaultAddress(addressId: number, profile_id: number): Promise<Address> {
-    await this.addressRepository.update(
-      { profile_id },
-      { isDefault: false }
-    );
+  // async setDefaultAddress(addressId: number, profile_id: number): Promise<Address> {
+  //   await this.addressRepository.update(
+  //     { profile_id },
+  //     { isDefault: false }
+  //   );
 
-    await this.addressRepository.update(
-      { address_id: addressId },
-      { isDefault: true }
-    );
+  //   await this.addressRepository.update(
+  //     { address_id: addressId },
+  //     { isDefault: true }
+  //   );
 
-    return await this.findOne(addressId);
-  }
+  //   return await this.findOne(addressId);
+  // }
   
-  findUserAddresses(profile_id: number) {
-    return this.addressRepository.find({ where: { profile_id: profile_id } });
-  }
+  // findUserAddresses(profile_id: number) {
+  //   return this.addressRepository.find({ where: { profile_id: profile_id } });
+  // }
 }

@@ -23,17 +23,17 @@ import { Role } from 'src/users/entities/user.entity';
 export class AddressesController {
   constructor(private readonly addressesService: AddressesService) {}
 
-  @Post()
+  @Post('create')
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   create(@Body() createAddressDto: CreateAddressDto) {
     return this.addressesService.create(createAddressDto);
   }
 
-  @Get()
-  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
-  findUserAddresses(@Param('profileId') profileId: number) {
-    return this.addressesService.findByProfileId(profileId);
-  }
+  // @Get()
+  // @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
+  // findUserAddresses(@Param('profileId') profileId: number) {
+  //   return this.addressesService.findByProfileId(profileId);
+  // }
 
   @Get(':id')
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
@@ -53,16 +53,16 @@ export class AddressesController {
     return this.addressesService.remove(id);
   }
 
-  @Patch('default/:id')
-  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
-  setDefaultAddress(@Param('id') id: number, @Param('profileId') profileId: number) {
-    return this.addressesService.setDefaultAddress(id, profileId);
-  }
+  // @Patch('default/:id')
+  // @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
+  // setDefaultAddress(@Param('id') id: number, @Param('profileId') profileId: number) {
+  //   return this.addressesService.setDefaultAddress(id, profileId);
+  // }
 
-  @Get('default/:profileId')
-  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
-  findUserAddress(@Param('profileId') profileId: number) {
-    return this.addressesService.findByProfileId(profileId);
-  }
+  // @Get('default/:profileId')
+  // @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
+  // findUserAddress(@Param('profileId') profileId: number) {
+  //   return this.addressesService.findByProfileId(profileId);
+  // }
 
 }

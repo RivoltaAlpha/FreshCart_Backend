@@ -10,7 +10,7 @@ export class CreateAddressDto {
 
   @ApiProperty()
   @IsOptional()
-  street: string;
+  area: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -21,27 +21,23 @@ export class CreateAddressDto {
   county: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  postal_code: string;
-
-  @ApiProperty()
   @IsOptional()
   country?: string;
 
   @ApiProperty()
   @IsOptional()
-  @IsEnum(['home', 'work', 'other'])
-  type?: 'home' | 'work' | 'other';
+  latitude?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  longitude?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsEnum(['home', 'work', 'store'])
+  type?: 'home' | 'work' | 'store';
 
   @ApiProperty()
   @IsOptional()
   isDefault?: boolean;
-
-  @ApiProperty()
-  @IsOptional()
-  created_at?: Date;
-
-  @ApiProperty()
-  @IsOptional()
-  updated_at?: Date;
 }
