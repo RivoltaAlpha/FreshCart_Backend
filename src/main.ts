@@ -18,7 +18,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:8000',
       'http://localhost:5173',
-      'https://redeployedinventory-dnd8gmc3a2a0dzcw.southafricanorth-01.azurewebsites.net/api/docs',
+      'https://fresh-cart-beta-hazel.vercel.app',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Authorization',
