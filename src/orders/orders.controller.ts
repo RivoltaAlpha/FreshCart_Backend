@@ -1,34 +1,57 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto';
+import { Roles } from 'src/auth/decorators/role.decorators';
+import { Role } from 'src/users/entities/user.entity';
+import {
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
+@ApiTags('Orders')
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  @Post()
+  @Post('create')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   create(@Body() createOrderDto: CreateOrderDto) {
     return this.ordersService.create(createOrderDto);
   }
 
-  @Get()
+  @Get('all')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   findAll() {
     return this.ordersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(+id);
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
+  findOne(@Param('id') id: number) {
+    return this.ordersService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(+id, updateOrderDto);
+  @Patch('update-status/:id')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
+  update(@Param('id') id: number, @Body() updateOrderDto: UpdateOrderStatusDto) {
+    return this.ordersService.updateStatus(id, updateOrderDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
+  remove(@Param('id') id: number) {
+    return this.ordersService.remove(id);
+  }
+  @Get('user/:userId')
+  @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
+  findByUser(@Param('userId') userId: number) {
+    return this.ordersService.findByUser(userId);
+  }
+  // Get orders by store
+  @Get('store/:storeId')
+  @Roles(Role.Store, Role.Admin)
+  findByStore(@Param('storeId') storeId: number) {
+    return this.ordersService.findByStore(storeId);
   }
 }

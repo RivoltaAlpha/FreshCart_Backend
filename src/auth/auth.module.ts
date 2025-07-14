@@ -9,18 +9,20 @@ import { JwtModule } from '@nestjs/jwt';
 import { AccessStrategy } from './strategies/accsess.stategy';
 import { RefreshStrategy } from './strategies/refresh.stategy';
 import { RolesGuard } from './guards/roles.guard';
+import { Profile } from 'src/profile/entities/profile.entity';
+import { Address } from 'src/addresses/entities/address.entity';
 
 @Module({
   imports: [
     DatabaseModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Profile, Address]),
     JwtModule.register({
       global: true,
-    }), // Register JwtModule globally
+    }), 
     PassportModule, // Import PassportModule to use guards
   ],
   providers: [AuthService, AccessStrategy, RefreshStrategy, RolesGuard],
   controllers: [AuthController],
-  exports: [ RolesGuard], // Export RolesGuard for use in other modules
+  exports: [RolesGuard], // Export RolesGuard for use in other modules
 })
 export class AuthModule {}

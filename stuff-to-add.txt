@@ -1,0 +1,15 @@
+// Handle authentication operations
+- register(registerDto)
+- login(loginDto)
+- logout(userId)
+- refreshToken(refreshToken)
+- forgotPassword(email)
+- resetPassword(token, newPassword)
+- verifyEmail(token)
+- resendVerificationEmail(email)
+
+
+// email services
+- sendVerificationEmail(email, token)
+- sendPasswordResetEmail(email, token)
+- sendWelcomeEmail(email, name)

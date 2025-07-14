@@ -7,6 +7,7 @@ import {
   IsEnum,
   IsNumber,
   IsOptional,
+  IsBoolean,
 } from 'class-validator';
 
 export enum Role {
@@ -21,16 +22,6 @@ export class CreateUserDto {
   @IsOptional()
   @IsNumber()
   user_id: number;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  first_name: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  last_name: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -51,25 +42,20 @@ export class CreateUserDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  phone_number?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  address?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
   hashedRefreshToken?: string;
 
   @ApiProperty()
   @IsOptional()
-  @IsDate()
-  created_at: Date;
+  @IsBoolean()
+  is_active: boolean = true;
 
   @ApiProperty()
   @IsOptional()
-  @IsDate()
-  updated_at: Date;
+  @IsBoolean()
+  is_available: boolean = true;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  profile_id: number;
 }

@@ -12,8 +12,11 @@ export class Category {
   @Column({ type: 'varchar', length: 255 })
   description: string;
 
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  image_url?: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  created_at: Date;
 
   @OneToMany(() => Product, (product) => product.category)
   products: Product[];

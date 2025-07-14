@@ -3,6 +3,17 @@ import { config } from 'dotenv';
 import { neon } from '@neondatabase/serverless';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { User } from '../users/entities/user.entity';
+import { Profile } from '../profile/entities/profile.entity';
+import { Address } from '../addresses/entities/address.entity';
+import { Product } from '../products/entities/product.entity';
+import { Order } from '../orders/entities/order.entity';
+import { Category } from '../categories/entities/category.entity';
+import { Store } from '../store/entities/store.entity';
+import { Inventory } from '../inventories/entities/inventory.entity';
+import { Payment } from 'src/payments/entities/payment.entity';
+import { OrderItem } from 'src/order-item/entities/order-item.entity';
+import { Delivery } from 'src/deliveries/entities/delivery.entity';
 
 // Load Environment Variables
 config({
@@ -32,14 +43,26 @@ const dbProvider = {
         username: configService.getOrThrow<string>('DB_USERNAME'),
         password: configService.getOrThrow<string>('DB_PASSWORD'),
         database: configService.getOrThrow<string>('DB_NAME'),
-        entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+        entities: [
+          User,
+          Profile,
+          Address,
+          Product,
+          Order,
+          Category,
+          Store,
+          Inventory,
+          Payment,
+          OrderItem,
+          Delivery,
+        ],
         synchronize: configService.getOrThrow<boolean>('DB_SYNC', true),
         logging: configService.getOrThrow<boolean>('DB_LOGGING', false),
-        // ssl: { rejectUnauthorized: false },
+        ssl: { rejectUnauthorized: false },
         // url: process.env.DATABASE_URL,
         migrations: [__dirname + '/../migrations/**/*{.ts,.js}'],
       }),
-      inject: [ConfigService], // Inject ConfigService to access configuration values
+      inject: [ConfigService], 
     }),
   ],
   providers: [dbProvider],

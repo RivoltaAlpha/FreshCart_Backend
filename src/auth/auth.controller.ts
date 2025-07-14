@@ -1,18 +1,12 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Param,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
+import { Controller, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/login.dto';
+import { CreateAuthDto } from './dto/signup.dto';
 import { AtGuard } from './guards/at.guards';
 import { RtGuard } from './guards/rt.guards';
 import { Public } from './decorators/public.decorator';
 import { Request } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { LoginDto } from './dto/signin.dto';
 
 export interface RequestWithUser extends Request {
   user: {
@@ -23,12 +17,12 @@ export interface RequestWithUser extends Request {
 }
 
 @ApiBearerAuth('access-token')
-@ApiTags('Auth') // This groups the endpoints under the 'Auth' tag in Swagger documentation
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public() // This endpoint is accessible without authentication
+  @Public()
   @Post('signup')
   create(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.SignUp(createAuthDto);
@@ -36,8 +30,8 @@ export class AuthController {
 
   @Public()
   @Post('signin')
-  findOne(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.SignIn(createAuthDto);
+  findOne(@Body() loginDto: LoginDto) {
+    return this.authService.SignIn(loginDto);
   }
 
   @UseGuards(AtGuard) // This endpoint requires authentication and you use the access token guard

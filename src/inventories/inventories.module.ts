@@ -5,12 +5,13 @@ import { DatabaseModule } from 'src/database/database.module';
 import { Inventory } from './entities/inventory.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { Warehouse } from 'src/warehouses/entities/warehouse.entity';
 import { Product } from 'src/products/entities/product.entity';
+import { Store } from 'src/store/entities/store.entity';
 
 @Module({
-  imports: [DatabaseModule, TypeOrmModule.forFeature([Inventory, User, Warehouse, Product])],
+  imports: [DatabaseModule, TypeOrmModule.forFeature([Inventory, User, Product, Store])],
   controllers: [InventoriesController],
   providers: [InventoriesService],
+  exports: [InventoriesService], 
 })
 export class InventoriesModule {}

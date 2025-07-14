@@ -1,5 +1,7 @@
 import { Order } from 'src/orders/entities/order.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Profile } from 'src/profile/entities/profile.entity';
+import { Store } from 'src/store/entities/store.entity';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum Role {
   Admin = 'Admin',
@@ -13,11 +15,8 @@ export class User {
   @PrimaryGeneratedColumn()
   user_id: number;
 
-  @Column({ type: 'varchar', length: 255 })
-  first_name: string;
-
-  @Column({ type: 'varchar', length: 255 })
-  last_name: string;
+  @Column({ type: 'int', unique: true })
+  profile_id: number;
 
   @Column({ unique: true, type: 'varchar', length: 255 })
   email: string;
@@ -28,28 +27,38 @@ export class User {
   @Column({ type: 'enum', enum: Role })
   role: Role;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  phone_number?: string | null;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  address?: string | null;
-
   @Column({ type: 'varchar', length: 255, nullable: true })
   hashedRefreshToken?: string | null;
 
+  @Column({ type: 'boolean', default: true })
+  is_active?: boolean;
+
+  @Column({ type: 'boolean', default: true })
+  is_available?: boolean;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  created_at: Date;
 
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: Date;
+  updated_at: Date;
 
-  // @OneToMany(() => Order, (order) => order.user, {
-  //   cascade: true,
-  //   onDelete: 'CASCADE',
-  // })
-  // orders: Order[];
+  @OneToMany(() => Order, (order) => order.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  orders: Order[];
+
+  @OneToOne(() => Profile, (profile) => profile.user)
+  @JoinColumn({ name: 'profile_id'})
+  profile: Profile;
+
+  @OneToMany(() => Store, (store) => store.owner, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  stores: Store[];
 }

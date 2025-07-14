@@ -1,24 +1,33 @@
 import {
+  BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateAuthDto } from './dto/login.dto';
+import { CreateAuthDto } from './dto/signup.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Role, User } from 'src/users/entities/user.entity';
+import { DataSource, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { first } from 'rxjs';
+import { Profile } from 'src/profile/entities/profile.entity';
+import { LoginDto } from './dto/signin.dto';
+import { Address } from 'src/addresses/entities/address.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Profile)
+    private profileService: Repository<Profile>,
+    @InjectRepository(Address) // Add Address repository
+    private addressRepository: Repository<Address>,
     private configService: ConfigService,
     private jwtService: JwtService,
+    private readonly dataSource: DataSource,
   ) {}
 
   private async getTokens(userId: number, email: string, role: string) {
@@ -84,79 +93,137 @@ export class AuthService {
   }
 
   async SignUp(createAuthDto: CreateAuthDto) {
-    // Check if user already exists
-    const existingUser = await this.userRepository.findOne({
-      where: { email: createAuthDto.email },
-      select: [
-        'user_id',
-        'email',
-        'password',
-        'role',
-        'first_name',
-        'last_name',
-      ], // Select only necessary fields
-    });
-    if (existingUser) {
-      throw new Error('User already exists');
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const existingUser = await this.userRepository.findOne({
+        where: { email: createAuthDto.email },
+        select: ['user_id', 'profile'],
+      });
+
+      if (existingUser) {
+        throw new ConflictException('User already exists');
+      }
+      // Validate required fields
+      if (!createAuthDto.first_name || !createAuthDto.last_name) {
+        throw new BadRequestException('First name and last name are required');
+      }
+      const hashedPassword = await bcrypt.hash(createAuthDto.password, 10);
+      const profile = this.profileService.create({
+        first_name: createAuthDto.first_name,
+        last_name: createAuthDto.last_name,
+        phone_number: createAuthDto.phone_number,
+      });
+      const savedProfile = await queryRunner.manager.save(profile);
+
+      // Step 2: Create address
+      const address = this.addressRepository.create({
+        area: createAuthDto.area,
+        town: createAuthDto.town,
+        county: createAuthDto.county,
+        country: createAuthDto.country || 'Kenya',
+        type: 'home',
+        isDefault: true,
+        profile: savedProfile,
+      });
+
+      await queryRunner.manager.save(address);
+
+      const user = this.userRepository.create({
+        email: createAuthDto.email,
+        password: hashedPassword,
+        role: createAuthDto.role as Role,
+        profile_id: savedProfile.profile_id,
+      });
+
+      // generate tokens
+      const savedUser = await queryRunner.manager.save(user);
+
+      const { accessToken, refreshToken } = await this.generateTokens(
+        savedUser.user_id,
+        savedUser.email,
+        savedUser.role,
+      );
+      // Save refresh token in the database
+      await this.saveRefreshToken(savedUser.user_id, refreshToken);
+      await queryRunner.commitTransaction();
+      // Return user and tokens
+      const userWithProfile = await this.userRepository.findOne({
+        where: { user_id: savedUser.user_id },
+        relations: ['profile'],
+        select: {
+          user_id: true,
+          email: true,
+          role: true,
+          profile: {
+            profile_id: true,
+            first_name: true,
+            last_name: true,
+            phone_number: true,
+            addresses: {
+              address_id: true,
+              area: true,
+              town: true,
+              county: true,
+              country: true,
+              type: true,
+              isDefault: true,
+            },
+          },
+        },
+      });
+      return {
+        user: userWithProfile,
+        tokens: { accessToken, refreshToken },
+        isAuthenticated: true,
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-    // hash password
-    const hashedPassword = await bcrypt.hash(createAuthDto.password, 10);
-
-    // create and save new user
-    const user = this.userRepository.create({
-      ...createAuthDto,
-      password: hashedPassword,
-    });
-    // generate tokens
-    const savedUser = await this.userRepository.save(user);
-    const { accessToken, refreshToken } = await this.generateTokens(
-      savedUser.user_id,
-      savedUser.email,
-      savedUser.role, // Assuming role is stored in the user entity
-    );
-
-    // Save refresh token in the database
-    await this.saveRefreshToken(savedUser.user_id, refreshToken);
-
-    // Return user and tokens
-    const updatedUser = await this.userRepository.findOne({
-      where: { user_id: savedUser.user_id },
-    });
-    return {
-      user: {
-        user_id: updatedUser?.user_id,
-        first_name: updatedUser?.first_name,
-        last_name: updatedUser?.last_name,
-        email: updatedUser?.email,
-        role: updatedUser?.role,
-      },
-      tokens: { accessToken, refreshToken },
-      isAuthenticated: true,
-    };
   }
 
-  async SignIn(createAuthDto: CreateAuthDto) {
+  async SignIn(loginDto: LoginDto) {
     const foundUser = await this.userRepository.findOne({
-      where: { email: createAuthDto.email },
-      select: [
-        'user_id',
-        'first_name',
-        'last_name',
-        'email',
-        'password',
-        'role',
-      ],
+      where: { email: loginDto.email },
+      relations: ['profile'],
+        select: {
+          user_id: true,
+          email: true,
+          role: true,
+          password: true,
+          profile: {
+            profile_id: true,
+            first_name: true,
+            last_name: true,
+            phone_number: true,
+            addresses: {
+              address_id: true,
+              area: true,
+              town: true,
+              county: true,
+              country: true,
+              type: true,
+              isDefault: true,
+            },
+          },
+        },
     });
+
     if (!foundUser) {
       throw new NotFoundException(
-        `User with email ${createAuthDto.email} not found`,
+        `User with email ${loginDto.email} not found`,
       );
     }
 
     const foundPassword = await bcrypt.compare(
-      createAuthDto.password,
+      loginDto.password,
       foundUser.password,
     );
+
     if (!foundPassword) {
       throw new UnauthorizedException('Invalid password');
     }
@@ -171,15 +238,11 @@ export class AuthService {
     // Save refresh token in the database
     await this.saveRefreshToken(foundUser.user_id, refreshToken);
 
+    const { password, ...userWithoutPassword } = foundUser;
+
     // Return user and tokens
     return {
-      user: {
-        user_id: foundUser.user_id,
-        first_name: foundUser.first_name,
-        last_name: foundUser.last_name,
-        email: foundUser.email,
-        role: foundUser.role,
-      },
+      user: userWithoutPassword,
       tokens: { accessToken, refreshToken },
       isAuthenticated: true,
     };

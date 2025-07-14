@@ -1,63 +1,84 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsEmail,
   IsNotEmpty,
   IsString,
-  IsDate,
-  IsEnum,
   IsNumber,
   IsOptional,
 } from 'class-validator';
+
 export class CreateStoreDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  owner_id: number;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsNumber()
-    store_id: number;
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  name: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    name: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  description: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    location: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  contact_info: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsNumber()
-    owner: number; // user_id of the store owner
+  // Address fields
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  area: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    description: string;
+  @ApiProperty()
+  @IsString()
+  country: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    contact_info: string;
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  town: string;
 
-    @ApiProperty()
-    @IsOptional()
-    @IsString()
-    image_url?: string;
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  county: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    address: string;
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  latitude?: number;
 
-    @ApiProperty()
-    @IsOptional()
-    @IsDate()
-    created_at: Date;
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  longitude?: number;
 
-    @ApiProperty()
-    @IsOptional()
-    @IsDate()
-    updated_at: Date;
-    
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  image_url?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  rating?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  total_reviews?: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  delivery_fee: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  store_code?: string;
 }

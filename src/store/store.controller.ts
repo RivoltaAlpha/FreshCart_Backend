@@ -1,34 +1,89 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller,Get,Post,Body,Patch,Param,Delete,Query,Request,ParseIntPipe} from '@nestjs/common';
 import { StoreService } from './store.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorators/role.decorators';
+import { Role } from 'src/users/entities/user.entity';
+import { Public } from 'src/auth/decorators/public.decorator';
 
-@Controller('store')
+
+@ApiTags('Stores')
+@ApiBearerAuth('access-token')
+@Controller('stores')
 export class StoreController {
   constructor(private readonly storeService: StoreService) {}
 
   @Post()
+  @Roles(Role.Store, Role.Admin)
+  @ApiOperation({ summary: 'Create a new store' })
+  @ApiResponse({ status: 201, description: 'Store successfully created' })
+  @ApiResponse({ status: 403, description: 'Only Store role users can create stores' })
+  @ApiResponse({ status: 409, description: 'User already has a store' })
   create(@Body() createStoreDto: CreateStoreDto) {
     return this.storeService.create(createStoreDto);
   }
 
-  @Get()
+  @Get('all')
+  @Public()
+  @ApiOperation({ summary: 'Get all stores' })
   findAll() {
     return this.storeService.findAll();
   }
 
+  @Get('location/:city')
+  @Public()
+  @ApiOperation({ summary: 'Get stores by location' })
+  @ApiQuery({ name: 'state', required: false, description: 'State/County filter' })
+  findByLocation(
+    @Param('city') city: string,
+    @Query('state') state?: string,
+  ) {
+    return this.storeService.findByLocation(city, state);
+  }
+
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.storeService.findOne(+id);
+  @Public()
+  @ApiOperation({ summary: 'Get store by ID' })
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.storeService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStoreDto: UpdateStoreDto) {
-    return this.storeService.update(+id, updateStoreDto);
+  @Roles(Role.Store, Role.Admin)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update store' })
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateStoreDto: UpdateStoreDto,
+    @Request() req: any,
+  ) {
+    const userId = req.user?.role === Role.Admin ? undefined : req.user?.sub;
+    return this.storeService.update(id, updateStoreDto, userId);
+  }
+
+  @Post(':id/rate')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Rate a store' })
+  rateStore(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { rating: number },
+  ) {
+    return this.storeService.updateRating(id, body.rating);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.storeService.remove(+id);
+  @Roles(Role.Store, Role.Admin)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete store' })
+  remove(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
+    const userId = req.user?.role === Role.Admin ? undefined : req.user?.sub;
+    return this.storeService.remove(id, userId);
+  }
+
+  @Get('owner/:id')
+  @ApiOperation({ summary: 'Get store by owner ID' })
+  findByOwnerId(@Param('id', ParseIntPipe) id: number) {
+    return this.storeService.findByOwnerId(id);
   }
 }

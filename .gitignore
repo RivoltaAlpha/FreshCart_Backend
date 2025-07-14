@@ -3,6 +3,21 @@
 /node_modules
 /build
 
+data.json
+queries.sql
+deliveries.http
+auth.http
+products.http
+deliveries.http
+deliveries.http
+addresses.http
+inventory.http
+orders.http
+payment.http
+categories.http
+users.http
+store.http
+
 # Logs
 logs
 *.log
@@ -37,6 +52,8 @@ lerna-debug.log*
 
 # dotenv environment variable files
 .env
+.envdocker
+
 .env.development.local
 .env.test.local
 .env.production.local
