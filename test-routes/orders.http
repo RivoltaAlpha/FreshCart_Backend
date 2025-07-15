@@ -1,0 +1,306 @@
+@url = http://localhost:8000
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzUxNjE4MDA2LCJleHAiOjE3NTE2MjE2MDZ9.OPvu9KwgYt7M8_wUzU813UnMNbyI4JW6Ub8ueYpyrj4
+@userToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoicml1a2lzdGV2ZUBnbWFpbC5jb20iLCJyb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3NTE2MTk4MTAsImV4cCI6MTc1MTYyMzQxMH0.LcfdmsyCC9QZoVdD5BCdp5DFw2XIgB6dJteSaMzrrDQ
+@storeOwnerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUsImVtYWlsIjoic3RvcmUub3duZXJAZ21haWwuY29tIiwicm9sZSI6IlN0b3JlIiwiaWF0IjoxNzUxNjAyNzc5LCJleHAiOjE3NTE2MDYzNzl9.K2IGLCs787vr6DyzR_yYwzzg3BpV8mS9XdOTIux8214
+
+### ===================== ORDER MANAGEMENT =====================
+
+### login 
+POST {{url}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "riukisteve@gmail.com",
+  "password": "Coding@21"
+}
+
+### 1. Get all products for a specific store
+GET {{url}}/products/store/2
+Authorization: Bearer {{adminToken}}
+
+### 1. Create new order
+POST {{url}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "store_id": 2,
+  "delivery_method": "standard_delivery",
+  "delivery_address": "123 Main Street Nairobi",
+  "estimated_delivery_time": "2025-07-04T15:00:00Z",
+  "items": [
+    {
+      "product_id": 5,
+      "quantity": 1
+    },
+    {
+      "product_id": 8,
+      "quantity": 3
+    }
+  ]
+}
+
+### 2. Create pickup order
+POST {{url}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "store_id": 1,
+  "delivery_method": "pickup",
+  "estimated_delivery_time": "2025-07-04T14:00:00Z",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 1
+    }
+  ]
+}
+
+### 6. Get specific order by ID
+GET {{url}}/orders/1
+Authorization: Bearer {{userToken}}
+
+
+### 11. Update order status to CONFIRMED
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "status": "CONFIRMED"
+}
+
+### 12. Update order status to PREPARING
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "status": "PREPARING"
+}
+
+### 13. Update order status to READY_FOR_PICKUP
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "status": "READY_FOR_PICKUP"
+}
+
+### 14. Update order status to IN_TRANSIT (with driver)
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "status": "IN_TRANSIT",
+  "driver_id": 1
+}
+
+### 15. Update order status to DELIVERED
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "status": "DELIVERED"
+}
+
+### 16. Cancel order with reason
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "status": "CANCELLED",
+  "cancellation_reason": "Customer requested cancellation"
+}
+
+### 17. Confirm order (store owner)
+POST {{url}}/orders/1/confirm
+Authorization: Bearer {{storeOwnerToken}}
+
+### 18. Cancel order (customer)
+POST {{url}}/orders/1/cancel
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "reason": "Changed my mind"
+}
+
+### 19. Cancel order (store owner)
+POST {{url}}/orders/1/cancel
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "reason": "Product out of stock"
+}
+
+### 20. Rate delivered order
+POST {{url}}/orders/1/rate
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "review": "Excellent service! Fresh products and fast delivery."
+}
+
+### 21. Rate with lower rating
+POST {{url}}/orders/2/rate
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "rating": 3,
+  "review": "Good products but delivery was delayed."
+}
+
+### 22. Get order statistics (admin)
+GET {{url}}/orders/stats
+Authorization: Bearer {{adminToken}}
+
+### 23. Get order statistics for specific store
+GET {{url}}/orders/stats?storeId=1
+Authorization: Bearer {{storeOwnerToken}}
+
+### 24. Delete order (admin only)
+DELETE {{url}}/orders/1
+Authorization: Bearer {{adminToken}}
+
+### ===================== ORDER STATUS TRACKING =====================
+
+### 25. Track order status progression
+GET {{url}}/orders/1
+Authorization: Bearer {{userToken}}
+
+### Update to each status step by step:
+
+### 26. Step 1: Confirm order
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "status": "CONFIRMED"
+}
+
+### 27. Step 2: Start preparing
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "status": "PREPARING"
+}
+
+### 28. Step 3: Ready for pickup/delivery
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "status": "READY_FOR_PICKUP"
+}
+
+### 29. Step 4: Out for delivery
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "status": "IN_TRANSIT",
+  "driver_id": 1
+}
+
+### 30. Step 5: Delivered
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "status": "DELIVERED"
+}
+
+### ===================== BULK ORDER OPERATIONS =====================
+
+### 31. Get pending orders for store
+GET {{url}}/orders/store/1?status=PENDING
+Authorization: Bearer {{storeOwnerToken}}
+
+### 32. Get orders ready for pickup
+GET {{url}}/orders/store/1?status=READY_FOR_PICKUP
+Authorization: Bearer {{storeOwnerToken}}
+
+### 33. Get in-transit orders
+GET {{url}}/orders/store/1?status=IN_TRANSIT
+Authorization: Bearer {{storeOwnerToken}}
+
+### 34. Get delivered orders for analytics
+GET {{url}}/orders/store/1?status=DELIVERED&page=1&limit=50
+Authorization: Bearer {{storeOwnerToken}}
+
+### ===================== ERROR SCENARIOS =====================
+
+### 35. Try to create order with insufficient stock
+POST {{url}}/orders
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "store_id": 1,
+  "delivery_method": "delivery",
+  "delivery_address": {
+    "street": "123 Main Street",
+    "city": "Nairobi",
+    "county": "Nairobi",
+    "postal_code": "00100",
+    "phone": "+254712345678"
+  },
+  "estimated_delivery_time": "2025-07-04T15:00:00Z",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 999
+    }
+  ]
+}
+
+### 36. Try invalid status transition
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{storeOwnerToken}}
+Content-Type: application/json
+
+{
+  "status": "DELIVERED"
+}
+
+### 37. Try to rate undelivered order
+POST {{url}}/orders/1/rate
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "review": "Great service!"
+}
+
+### 38. Try to access another user's order
+GET {{url}}/orders/1
+Authorization: Bearer {{userToken}}
+
+### 39. Try to update order status without permission
+PATCH {{url}}/orders/1/status
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "status": "CONFIRMED"
+}

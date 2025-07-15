@@ -1,0 +1,274 @@
+@url = http://localhost:8000
+@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzUxNjE2NzMwLCJleHAiOjE3NTE2MjAzMzB9.e8L4Bbg9v4W7cbqLcrTGtbmWdVTVdFsNSHtMDSI2SO8
+@storeToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUsImVtYWlsIjoic3RvcmUub3duZXJAZ21haWwuY29tIiwicm9sZSI6IlN0b3JlIiwiaWF0IjoxNzUxNjEzMDk4LCJleHAiOjE3NTE2MTY2OTh9.dIEksMfQFtgj9WJUkodGdcEHc_WD-VBnMWKyCajficc
+@customerToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoicml1a2lzdGV2ZUBnbWFpbC5jb20iLCJyb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3NTE2MjA0NzEsImV4cCI6MTc1MTYyNDA3MX0.ilOMyg8E_MMeQwuPrwv6y6kSfXCrYaUOvpx_nyMqUuY
+### all users
+### Base URL
+GET {{url}}/orders
+Authorization: Bearer {{adminToken}}
+
+### all products
+GET {{url}}/products/all
+Authorization: Bearer {{adminToken}}
+
+
+### Variables for test data
+@userId = 1
+@orderId = 1
+@paymentId = 1
+@paymentReference = PAY_1672908000000_1
+
+### ===================== PAYMENT MANAGEMENT =====================
+
+### 1. Initialize Payment with Paystack (Customer only)
+POST {{url}}/payments/initialize
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "user_id": {{userId}},
+  "order_id": {{orderId}},
+  "email": "riukisteve@gmail.com",
+  "amount": 2500.00,
+  "callback_url": "http://localhost:3000/payment/success"
+}
+
+### 2. Create Payment Record (Customer only)
+POST {{url}}/payments/create
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "user_id": {{userId}},
+  "order_id": {{orderId}},
+  "email": "riukisteve@gmail.com",
+  "amount": 1500.00,
+  "currency": "KES",
+  "payment_method": "CARD",
+  "gateway": "PAYSTACK",
+  "status": "PENDING"
+}
+
+### 3. Get All Payments (Any authenticated user)
+GET {{url}}/payments/all
+Authorization: Bearer {{customerToken}}
+
+### 4. Get Specific Payment by ID
+GET {{url}}/payments/{{paymentId}}
+Authorization: Bearer {{customerToken}}
+
+### 5. Verify Payment Transaction (Customer, Admin, Store)
+GET {{url}}/payments/verify/{{paymentReference}}
+Authorization: Bearer {{customerToken}}
+
+### 6. Fetch Transaction Details (Admin, Store only)
+GET {{url}}/payments/transaction/123456789
+Authorization: Bearer {{adminToken}}
+
+### 7. Update Payment (Customer, Admin, Store)
+PATCH {{url}}/payments/update/{{paymentId}}
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "status": "COMPLETED",
+  "processed_at": "2025-01-04T10:00:00Z"
+}
+
+### 8. Delete Payment (Customer, Admin, Store)
+DELETE {{url}}/payments/delete/{{paymentId}}
+Authorization: Bearer {{adminToken}}
+
+### ===================== PAYMENT SCENARIOS =====================
+
+### 9. Initialize Payment for Large Order
+POST {{url}}/payments/initialize
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "user_id": {{userId}},
+  "order_id": 2,
+  "email": "riukisteve@gmail.com",
+  "amount": 15000.00,
+  "callback_url": "http://localhost:3000/payment/success"
+}
+
+### 10. Initialize Payment with M-Pesa
+POST {{url}}/payments/create
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "user_id": {{userId}},
+  "order_id": 3,
+  "email": "riukisteve@gmail.com",
+  "amount": 500.00,
+  "currency": "KES",
+  "payment_method": "MOBILE_MONEY",
+  "gateway": "MPESA",
+  "status": "PENDING"
+}
+
+### 11. Test Payment Verification with Mock Reference
+GET {{url}}/payments/verify/PAY_TEST_1672908000000_1
+Authorization: Bearer {{customerToken}}
+
+### 12. Fetch Transaction with Mock ID
+GET {{url}}/payments/transaction/TXN_TEST_123456
+Authorization: Bearer {{storeToken}}
+
+### ===================== ADMIN PAYMENT OPERATIONS =====================
+
+### 13. Admin - Get All Payments
+GET {{url}}/payments/all
+Authorization: Bearer {{adminToken}}
+
+### 14. Admin - Update Payment Status
+PATCH {{url}}/payments/update/1
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "FAILED",
+  "failure_reason": "Insufficient funds",
+  "failed_at": "2025-01-04T10:30:00Z"
+}
+
+### 15. Store Owner - View Store Payments
+GET {{url}}/payments/all
+Authorization: Bearer {{storeToken}}
+
+### ===================== ERROR SCENARIOS =====================
+
+### 16. Try to initialize payment without authentication
+POST {{url}}/payments/initialize
+Content-Type: application/json
+
+{
+  "user_id": {{userId}},
+  "order_id": {{orderId}},
+  "email": "test@example.com",
+  "amount": 1000.00,
+  "callback_url": "http://localhost:3000/payment/success"
+}
+
+### 17. Try to verify non-existent transaction
+GET {{url}}/payments/verify/INVALID_REFERENCE
+Authorization: Bearer {{customerToken}}
+
+### 18. Try to fetch transaction with invalid ID
+GET {{url}}/payments/transaction/INVALID_ID
+Authorization: Bearer {{adminToken}}
+
+### 19. Try to update non-existent payment
+PATCH {{url}}/payments/update/99999
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "status": "COMPLETED"
+}
+
+### 20. Try to delete non-existent payment
+DELETE {{url}}/payments/delete/99999
+Authorization: Bearer {{adminToken}}
+
+### ===================== PAYMENT WORKFLOW TEST =====================
+
+### 21. Complete Payment Workflow
+# Step 1: Initialize payment
+POST {{url}}/payments/initialize
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "user_id": {{userId}},
+  "order_id": 5,
+  "email": "riukisteve@gmail.com",
+  "amount": 3200.00,
+  "callback_url": "http://localhost:3000/payment/success"
+}
+
+### 22. Step 2: Verify the payment (use reference from step 1)
+# GET {{url}}/payments/verify/REFERENCE_FROM_STEP_1
+# Authorization: Bearer {{customerToken}}
+
+### 23. Step 3: Fetch transaction details (use transaction ID from verification)
+# GET {{url}}/payments/transaction/TRANSACTION_ID_FROM_VERIFICATION
+# Authorization: Bearer {{storeToken}}
+
+### ===================== BULK PAYMENT OPERATIONS =====================
+
+### 24. Initialize Multiple Payments for Testing
+POST {{url}}/payments/initialize
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "user_id": {{userId}},
+  "order_id": 6,
+  "email": "riukisteve@gmail.com",
+  "amount": 750.00,
+  "callback_url": "http://localhost:3000/payment/success"
+}
+
+### 25. Create Another Payment Record
+POST {{url}}/payments/create
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "user_id": {{userId}},
+  "order_id": 7,
+  "email": "riukisteve@gmail.com",
+  "amount": 1200.00,
+  "currency": "KES",
+  "payment_method": "CARD",
+  "gateway": "PAYSTACK",
+  "status": "PENDING"
+}
+
+### 26. Get All Payments to View Created Records
+GET {{url}}/payments/all
+Authorization: Bearer {{customerToken}}
+
+### ===================== PAYMENT ANALYTICS =====================
+
+### 27. Filter Payments by User (if implemented)
+# GET {{url}}/payments/user/{{userId}}
+# Authorization: Bearer {{customerToken}}
+
+### 28. Filter Payments by Order (if implemented)
+# GET {{url}}/payments/order/{{orderId}}
+# Authorization: Bearer {{customerToken}}
+
+### 29. Get Payment Statistics (if implemented)
+# GET {{url}}/payments/stats
+# Authorization: Bearer {{adminToken}}
+
+### ===================== WEBHOOK TESTING =====================
+
+### 30. Simulate Paystack Webhook (for testing purposes)
+# This would typically be called by Paystack
+POST {{url}}/payments/webhook
+Content-Type: application/json
+
+{
+  "event": "charge.success",
+  "data": {
+    "id": 302961,
+    "domain": "live",
+    "status": "success",
+    "reference": "PAY_1672908000000_1",
+    "amount": 250000,
+    "gateway_response": "Successful",
+    "paid_at": "2025-01-04T10:00:00.000Z",
+    "created_at": "2025-01-04T09:55:00.000Z",
+    "channel": "card",
+    "currency": "KES",
+    "customer": {
+      "email": "riukisteve@gmail.com"
+    }
+  }
+}

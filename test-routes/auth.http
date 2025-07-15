@@ -1,0 +1,272 @@
+### 
+@url = http://localhost:8000
+
+### Base URL
+GET {{url}} 
+
+### Authentication
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJlbWFpbCI6ImFkbWluMkBnbWFpbC5jb20iLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTA3NTg5MTYsImV4cCI6MTc1MDc2MjUxNn0.ukf2WyG0cs2nM4MHQ8qpAtjo4sRmgUq8UtSItl1p33E
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI0LCJlbWFpbCI6InN0ZXZlcml1a2lAZ21haWwuY29tIiwicm9sZSI6IlNhbGVzIiwiaWF0IjoxNzQ5NTQzNzU2LCJleHAiOjE3NTAxNDg1NTZ9.I2S2aB4KUtGSa1kISTBBHJOQmVP-ODofcRx6p-Uy98s
+### Cache Metrics
+### Signup - Complete User Registration
+POST {{url}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "riukisteve@gmail.com",
+  "password": "Coding@21",
+  "role": "Customer",
+  "first_name": "Steve",
+  "last_name": "Riuki",
+  "phone_number": "+254712345678",
+  "town": "Nairobi",
+  "county": "Nairobi County",
+  "country": "Kenya"
+}
+
+### Signup - Store Owner
+POST {{url}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "store.owner@gmail.com",
+  "password": "StorePass@123",
+  "role": "Store",
+  "first_name": "John",
+  "last_name": "Store",
+  "phone_number": "+254700123456",
+    "town": "Nairobi",
+  "county": "Nairobi County",
+  "country": "Kenya"
+}
+
+### Signup - Driver
+POST {{url}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "driver@gmail.com",
+  "password": "DriverPass@123",
+  "role": "Driver",
+  "first_name": "Mike",
+  "last_name": "Driver",
+  "phone_number": "+254711223344",
+    "town": "Nairobi",
+  "county": "Nairobi County",
+  "country": "Kenya"
+}
+
+### Signup - Admin
+POST {{url}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "AdminPass@123",
+  "role": "Admin",
+  "first_name": "Admin",
+  "last_name": "User",
+  "phone_number": "+254722334455",
+  "town": "Nairobi",
+  "county": "Nairobi County",
+  "country": "Kenya"
+}
+
+### Logout
+POST {{url}}/auth/signout/12
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userId": 12
+}
+
+### Refresh Tokens
+POST {{url}}/auth/refresh/12
+Authorization: Bearer {{refreshToken}}
+Content-Type: application/json
+
+{
+  "userId": 12,
+  "refreshToken": "{{refreshToken}}"
+}
+
+###
+POST {{url}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "riukisteve@gmail.com",
+  "password": "Coding@21",
+  "role": "Customer",
+  "first_name": "Steve",
+  "last_name": "Riuki",
+  "phone_number": "+254712345678",
+  "city": "Nairobi",
+  "country": "Kenya",
+  "postal_code": "00100"
+}
+
+### login Admin
+POST {{url}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "AdminPass@123"
+}
+### login Admin
+POST {{url}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "riukisteve@gmail.com",
+  "password": "Coding@21"
+}
+
+
+###
+POST {{url}}/seed
+Authorization: Bearer {{token}}
+
+# Complete Test flow for User and Profile Management
+### 1. Register a new customer
+POST {{url}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "newcustomer@gmail.com",
+  "password": "Customer@123",
+  "role": "Customer",
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "phone_number": "+254700111222"
+}
+
+### 2. Login with the new customer
+POST {{url}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "store.owner@gmail.com",
+  "password": "StorePass@123"
+}
+
+### 3. Get user profile (use token from login response)
+GET {{url}}/users/profile
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### 4. Get all users (admin only)
+GET {{url}}/users
+Authorization: Bearer {{token}}
+
+### 5. Get specific user by ID
+GET {{url}}/users/1
+Authorization: Bearer {{token}}
+
+### 6. Update user profile
+PUT {{url}}/users/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "updated.email@gmail.com"
+}
+
+### 7. Test duplicate email registration (should fail)
+POST {{url}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "newcustomer@gmail.com",
+  "password": "AnotherPass@123",
+  "role": "Customer",
+  "first_name": "Another",
+  "last_name": "User",
+  "phone_number": "+254700333444"
+}
+
+### 8. Test invalid login (should fail)
+POST {{url}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "newcustomer@gmail.com",
+  "password": "WrongPassword"
+}
+
+### 9. Refresh token
+POST {{url}}/auth/refresh/USER_ID_HERE
+Authorization: Bearer YOUR_REFRESH_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "refreshToken": "YOUR_REFRESH_TOKEN_HERE"
+}
+
+### 10. Logout
+POST {{url}}/auth/signout/USER_ID_HERE
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+# Profile testing
+### Get user profile with addresses
+GET {{url}}/profile/1
+Authorization: Bearer {{token}}
+
+### Update profile
+PUT {{url}}/profile/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "first_name": "Updated",
+  "last_name": "Name",
+  "phone_number": "+254700999888"
+}
+
+### Add address to profile
+POST {{url}}/addresses
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "profileId": 1,
+  "street": "123 Main Street",
+  "city": "Nairobi",
+  "state": "Nairobi County",
+  "postal_code": "00100",
+  "country": "Kenya",
+  "type": "home",
+  "isDefault": true,
+  "latitude": -1.2921,
+  "longitude": 36.8219,
+  "deliveryInstructions": "Gate 5, Apartment 2B"
+}
+
+### Get addresses for profile
+GET {{url}}/addresses/profile/1
+Authorization: Bearer {{token}}
+
+### Update address
+PUT {{url}}/addresses/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "street": "456 Updated Street",
+  "isDefault": false
+}
+
+### Set address as default
+PUT {{url}}/addresses/1/default
+Authorization: Bearer {{token}}
+
+### Delete address
+DELETE {{url}}/addresses/1
+Authorization: Bearer {{token}}
