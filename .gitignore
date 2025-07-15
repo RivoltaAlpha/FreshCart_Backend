@@ -3,6 +3,7 @@
 /node_modules
 /build
 
+*.http
 data.json
 queries.sql
 deliveries.http
@@ -10,6 +11,17 @@ auth.http
 products.http
 deliveries.http
 deliveries.http
+products.http
+deliveries.http
+deliveries.http
+addresses.http
+inventory.http
+orders.http
+payment.http
+categories.http
+users.http
+store.http
+
 
 # Logs
 logs
