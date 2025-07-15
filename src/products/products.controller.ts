@@ -75,4 +75,11 @@ export class ProductsController {
   ) {
     return this.productsService.updateRating(id, rateProductDto.rating);
   }
+
+  // find store product belongs to
+  @Get(':id/store')
+  @Public()
+  async findStoreByProductId(@Param('id') id: number) {
+    return this.productsService.findStoreByProductId(id);
+  }
 }
