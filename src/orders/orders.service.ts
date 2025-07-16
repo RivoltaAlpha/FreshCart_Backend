@@ -19,6 +19,7 @@ import {
 import { InventoriesService } from 'src/inventories/inventories.service';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -490,5 +491,16 @@ export class OrdersService {
     }
 
     await this.ordersRepository.remove(order);
+  }
+
+  // update order details
+  async update(orderId: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
+    const order = await this.findOne(orderId);
+
+    // Update order details
+    const updatedOrder = Object.assign(order, updateOrderDto);
+    await this.ordersRepository.save(updatedOrder);
+
+    return this.findOne(orderId);
   }
 }

@@ -7,6 +7,7 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Orders')
@@ -37,6 +38,12 @@ export class OrdersController {
   update(@Param('id') id: number, @Body() updateOrderDto: UpdateOrderStatusDto) {
     return this.ordersService.updateStatus(id, updateOrderDto);
   }
+
+@Patch('update/:id')
+@Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
+updateOrder(@Param('id') id: number, @Body() updateOrderDto: UpdateOrderDto) {
+  return this.ordersService.update(id, updateOrderDto);
+}
 
   @Delete(':id')
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
