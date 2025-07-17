@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -21,16 +22,21 @@ import { Public } from 'src/auth/decorators/public.decorator';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-  @Post('create')
-  @Roles(Role.Admin, Role.Store)
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
-  }
-
   @Get('all')
   @Public()
   findAll() {
     return this.categoriesService.findAll();
+  }
+
+  @Get('category-products')
+  @Public()
+  categoryProducts(@Query('category_name') category_name: string) {
+    return this.categoriesService.searchCategoriesByName(category_name);
+  }
+  @Post('create')
+  @Roles(Role.Admin, Role.Store)
+  create(@Body() createCategoryDto: CreateCategoryDto) {
+    return this.categoriesService.create(createCategoryDto);
   }
 
   @Get(':id')

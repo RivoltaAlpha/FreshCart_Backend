@@ -3,7 +3,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 @Injectable()
 export class CategoriesService {
@@ -44,23 +44,43 @@ export class CategoriesService {
     }
   }
 
-  async categoryProducts (category_id: number) {
+  async categoryProducts(category_id: number) {
     return this.categoriesRepository.find({
       where: {
-        category_id: category_id
+        category_id: category_id,
       },
       relations: ['products'],
       select: {
-        category_id:true,
-        name:true,
-        description:true,
+        category_id: true,
+        name: true,
+        description: true,
         products: {
           product_id: true,
           name: true,
           price: true,
         },
-      }
-    })
+      },
+    });
+  }
 
+  // Search categories by name and include products
+  async searchCategoriesByName(name: string) {
+    return this.categoriesRepository.find({
+      where: {
+        name: Like(`%${name}%`),
+      },
+      relations: ['products'],
+      select: {
+        category_id: true,
+        name: true,
+        description: true,
+        products: {
+          product_id: true,
+          name: true,
+          price: true,
+          image_url: true,
+        },
+      },
+    });
   }
 }
