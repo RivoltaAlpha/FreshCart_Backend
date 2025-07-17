@@ -6,7 +6,7 @@ import {
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Like, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Store } from 'src/store/entities/store.entity';
@@ -261,50 +261,49 @@ export class ProductsService {
     return await queryBuilder.getMany();
   }
 
-async getProductsByStore(storeId: number): Promise<Product[]> {
-  // First verify the store exists
-  const storeExists = await this.dataSource
-    .getRepository('Store')
-    .findOne({ where: { store_id: storeId } });
+  async getProductsByStore(storeId: number): Promise<Product[]> {
+    // First verify the store exists
+    const storeExists = await this.dataSource
+      .getRepository('Store')
+      .findOne({ where: { store_id: storeId } });
 
-  if (!storeExists) {
-    throw new NotFoundException(`Store with ID ${storeId} not found`);
+    if (!storeExists) {
+      throw new NotFoundException(`Store with ID ${storeId} not found`);
+    }
+
+    const products = await this.productsRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .leftJoin('product.inventory', 'inventory')
+      .where('inventory.store_id = :storeId', { storeId })
+      .orderBy('product.created_at', 'DESC')
+      .getMany();
+
+    return products;
   }
 
-  const products = await this.productsRepository
-    .createQueryBuilder('product')
-    .leftJoinAndSelect('product.category', 'category')
-    .leftJoin('product.inventory', 'inventory')
-    .where('inventory.store_id = :storeId', { storeId })
-    .orderBy('product.created_at', 'DESC')
-    .getMany();
+  async getProductsByCategory(categoryId: number): Promise<Product[]> {
+    const category = await this.categoryRepository.findOne({
+      where: { category_id: categoryId },
+    });
 
-  return products;
-}
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${categoryId} not found`);
+    }
 
-async getProductsByCategory(categoryId: number): Promise<Product[]> {
-  const category = await this.categoryRepository.findOne({
-    where: { category_id: categoryId },
-  });
+    const products = await this.productsRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .leftJoinAndSelect('product.inventory', 'inventory')
+      .leftJoinAndSelect('inventory.store', 'store')
+      .where('product.category_id = :categoryId', { categoryId })
+      .orderBy('product.created_at', 'DESC')
+      .getMany();
 
-  if (!category) {
-    throw new NotFoundException(`Category with ID ${categoryId} not found`);
+    return products;
   }
 
-  const products = await this.productsRepository
-    .createQueryBuilder('product')
-    .leftJoinAndSelect('product.category', 'category')
-    .leftJoinAndSelect('product.inventory', 'inventory')
-    .leftJoinAndSelect('inventory.store', 'store')
-    .where('product.category_id = :categoryId', { categoryId })
-    .orderBy('product.created_at', 'DESC')
-    .getMany();
-
-  return products;
-}
-
-
-// stores that have this product
+  // stores that have this product
   async getStoresByProduct(productId: number): Promise<any[]> {
     const product = await this.productsRepository
       .createQueryBuilder('product')
@@ -423,5 +422,53 @@ async getProductsByCategory(categoryId: number): Promise<Product[]> {
 
     await this.productsRepository.save(product);
     return product;
+  }
+
+  // Search categories by name and include products
+  async searchCategoriesByName(name: string) {
+    return this.categoryRepository.find({
+      where: {
+        name: Like(`%${name}%`),
+      },
+      relations: ['products'],
+      select: {
+        category_id: true,
+        name: true,
+        description: true,
+        products: {
+          product_id: true,
+          name: true,
+          price: true,
+          image_url: true,
+        },
+      },
+    });
+  }
+
+async searchProductsByName(name: string): Promise<Product[]> {
+  if (!name || name.trim() === '') {
+    return [];
+    // Or: return this.findAll();
+  }
+  return this.productsRepository.find({
+    where: { name: Like(`%${name}%`) },
+  });
+}
+
+  //search all products
+  async searchAllProducts(query: string): Promise<Product[]> {
+    // If no query is provided, return all products
+    if (!query) {
+      const products = await this.productsRepository.find();
+      return products;
+    }
+
+    query = query.toLowerCase();
+
+    return this.productsRepository.find({
+      where: {
+        name: Like(`%${query}%`),
+      },
+    });
   }
 }
