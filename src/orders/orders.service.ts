@@ -503,4 +503,15 @@ export class OrdersService {
 
     return this.findOne(orderId);
   }
+
+    // get user ordered products
+  async getUserOrderedProducts(userId: number) : Promise<Product[]> {
+    const orders = await this.ordersRepository.find({
+      where: { user_id: userId, status: OrderStatus.CONFIRMED },
+      relations: ['items', 'items.product'],
+    });
+
+    const products = orders.flatMap(order => order.items.map(item => item.product));
+    return Array.from(new Set(products)); 
+  }
 }
