@@ -8,12 +8,19 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Order Items')
 @Controller('order-item')
 export class OrderItemController {
   constructor(private readonly orderItemService: OrderItemService) {}
+
+  @Get('top-products')
+  @Public()
+  findTop10Products() {
+    return this.orderItemService.findTop10Products();
+  }
 
   @Post()
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)

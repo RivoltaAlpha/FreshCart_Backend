@@ -8,12 +8,19 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Orders')
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
+
+  @Get('user-purchases/:userId')
+  @Public()
+  getUserOrderedProducts(@Param('userId') userId: number) {
+    return this.ordersService.getUserOrderedProducts(userId);
+  }
 
   @Post('create')
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
