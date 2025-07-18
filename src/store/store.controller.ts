@@ -14,8 +14,8 @@ import { Public } from 'src/auth/decorators/public.decorator';
 export class StoreController {
   constructor(private readonly storeService: StoreService) {}
 
-  @Post()
-  @Roles(Role.Store, Role.Admin)
+  @Post('create')
+  @Public()
   @ApiOperation({ summary: 'Create a new store' })
   @ApiResponse({ status: 201, description: 'Store successfully created' })
   @ApiResponse({ status: 403, description: 'Only Store role users can create stores' })
@@ -85,5 +85,19 @@ export class StoreController {
   @ApiOperation({ summary: 'Get store by owner ID' })
   findByOwnerId(@Param('id', ParseIntPipe) id: number) {
     return this.storeService.findByOwnerId(id);
+  }
+
+  @Patch(':store_id/verify')
+  @Roles(Role.Admin)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Verify store' })
+  verifyStore(@Param('store_id', ParseIntPipe) storeId: number) {
+    return this.storeService.verifyStore(storeId);
+  }
+
+  @Get('unverified-stores')
+  @ApiOperation({ summary: 'Get all unverified stores' })
+  findUnverifiedStores() {
+    return this.storeService.findUnverifiedStores();
   }
 }

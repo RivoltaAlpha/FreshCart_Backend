@@ -4,6 +4,7 @@ import {
   IsString,
   IsNumber,
   IsOptional,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateStoreDto {
@@ -41,6 +42,16 @@ export class CreateStoreDto {
   @IsString()
   @IsNotEmpty()
   town: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  is_active?: boolean;
+
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  is_verified?: boolean;
 
   @ApiProperty()
   @IsString()

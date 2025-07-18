@@ -44,6 +44,12 @@ export class Store {
   @Column({ type: 'int', default: 0 })
   delivery_fee: number;
 
+  @Column({ type: 'boolean', default: true })
+  is_active: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  is_verified: boolean;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
   @Column({

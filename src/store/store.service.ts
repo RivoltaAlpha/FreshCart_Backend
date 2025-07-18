@@ -66,6 +66,8 @@ export class StoreService {
         delivery_fee: createStoreDto.delivery_fee,
         image_url: createStoreDto.image_url,
         store_code: createStoreDto.store_code,
+        is_active: createStoreDto.is_active ?? true,
+        is_verified: createStoreDto.is_verified ?? false,
         rating:
           typeof createStoreDto.rating === 'number' ? createStoreDto.rating : 0,
         total_reviews:
@@ -124,6 +126,7 @@ export class StoreService {
 
   async findAll(): Promise<Store[]> {
     return await this.storeRepository.find({
+      where: { is_verified: true },
       relations: ['owner', 'owner.profile', 'address'],
       select: {
         owner: {
@@ -248,6 +251,33 @@ export class StoreService {
   async findByOwnerIdOrNull(ownerId: number): Promise<Store | null> {
     return await this.storeRepository.findOne({
       where: { owner_id: ownerId },
+      relations: ['owner', 'owner.profile', 'address'],
+      select: {
+        owner: {
+          user_id: true,
+          email: true,
+          profile: {
+            first_name: true,
+            last_name: true,
+            phone_number: true,
+          },
+        },
+      },
+    });
+  }
+
+  // verify store
+  async verifyStore(id: number): Promise<Store> {
+    const store = await this.findOne(id);
+    store.is_verified = true;
+    await this.storeRepository.save(store);
+    return store;
+  }
+
+  // unverified stores 
+  async findUnverifiedStores(): Promise<Store[]> {
+    return await this.storeRepository.find({
+      where: { is_verified: false },
       relations: ['owner', 'owner.profile', 'address'],
       select: {
         owner: {
