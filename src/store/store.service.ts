@@ -161,7 +161,7 @@ export class StoreService {
   async findOne(id: number): Promise<Store> {
     const store = await this.storeRepository.findOne({
       where: { store_id: id },
-      relations: ['owner', 'owner.profile', 'products', 'address'],
+      relations: ['owner', 'owner.profile', 'address'],
       select: {
         owner: {
           user_id: true,
