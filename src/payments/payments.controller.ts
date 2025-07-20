@@ -20,7 +20,7 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  @Post()
+  @Post('all')
   @Roles(Role.Customer)
   create(@Body() createPaymentDto: CreatePaymentDto) {
     return this.paymentsService.create(createPaymentDto);
