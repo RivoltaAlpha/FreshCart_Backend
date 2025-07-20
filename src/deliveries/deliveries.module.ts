@@ -11,11 +11,12 @@ import { Address } from 'src/addresses/entities/address.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { PaymentEventListener } from './listeners/payment.listeners';
 import { OrderEventListener } from 'src/orders/listeners/otder.listeners';
+import { PaystackTransferService } from 'src/payments/paystack-transfer.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Delivery, User, Store, Payment, Profile, Address, Order])],
   controllers: [DeliveriesController],
-  providers: [DeliveriesService, PaymentEventListener, OrderEventListener],
-  exports: [DeliveriesService],
+  providers: [DeliveriesService, PaymentEventListener, OrderEventListener, PaystackTransferService], // <-- Add here
+  exports: [DeliveriesService, PaystackTransferService],
 })
 export class DeliveriesModule {}
