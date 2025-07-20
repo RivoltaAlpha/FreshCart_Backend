@@ -30,6 +30,19 @@ export class DeliveriesController {
   create(@Body() createDeliveryDto: CreateDeliveryDto) {
     return this.deliveriesService.create(createDeliveryDto);
   }
+  // all deliveries
+  @Get('all')
+  @Roles(Role.Admin)
+  async findAllDeliveries() {
+    try {
+      return await this.deliveriesService.findAll();
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to fetch deliveries',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 
   // Create delivery workflow for an order
   @Post('workflow/:orderId')
