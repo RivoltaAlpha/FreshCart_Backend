@@ -22,6 +22,8 @@ import { AddressesModule } from './addresses/addresses.module';
 import { OrderItemModule } from './order-item/order-item.module';
 import { DeliveriesModule } from './deliveries/deliveries.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { FeedbackModule } from './feedback/feedback.module';
+import { PaystackTransferModule } from './payments/paystack-transfer.module';
 
 @Module({
   imports: [
@@ -58,7 +60,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     AddressesModule,
     OrderItemModule,
     DeliveriesModule,
-    EventEmitterModule.forRoot()
+    EventEmitterModule.forRoot(),
+    FeedbackModule,
+    PaystackTransferModule,
   ],
   controllers: [AppController],
   providers: [
