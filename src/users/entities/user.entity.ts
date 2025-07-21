@@ -1,4 +1,6 @@
+import { Feedback } from 'src/feedback/entities/feedback.entity';
 import { Order } from 'src/orders/entities/order.entity';
+import { Payment } from 'src/payments/entities/payment.entity';
 import { Profile } from 'src/profile/entities/profile.entity';
 import { Store } from 'src/store/entities/store.entity';
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
@@ -61,4 +63,17 @@ export class User {
     onDelete: 'CASCADE',
   })
   stores: Store[];
+
+  @OneToMany(() => Payment, (payment) => payment.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  payments: Payment[];
+
+  // feedback
+  @OneToMany(() => Feedback, (feedback) => feedback.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  feedbacks: Feedback[];
 }

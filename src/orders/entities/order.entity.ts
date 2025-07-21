@@ -14,6 +14,7 @@ import { Product } from 'src/products/entities/product.entity';
 import { Store } from 'src/store/entities/store.entity';
 import { Payment } from 'src/payments/entities/payment.entity';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
+import { Feedback } from 'src/feedback/entities/feedback.entity';
 
 export enum OrderStatus {
   PENDING = 'pending',
@@ -138,4 +139,8 @@ export class Order {
     onDelete: 'CASCADE',
   })
   items: OrderItem[];
+
+  @OneToMany(() => Feedback, (feedback) => feedback.order,
+    { cascade: true, onDelete: 'CASCADE' })
+  feedbacks: Feedback[];
 }
