@@ -71,6 +71,9 @@ importers:
       class-validator:
         specifier: ^0.14.2
         version: 0.14.2
+      cp:
+        specifier: ^0.2.0
+        version: 0.2.0
       dotenv:
         specifier: ^17.0.0
         version: 17.0.0
@@ -1789,6 +1792,9 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  cp@0.2.0:
+    resolution: {integrity: sha512-4ftCvShHjIZG/zzomHyunNpBof3sOFTTmU6s6q9DdqAL/ANqrKV3pr6Z6kVfBI4hjn59DFLImrBqn7GuuMqSZA==}
 
   create-jest@29.7.0:
     resolution: {integrity: sha512-Adz2bdH0Vq3F53KEMJOoftQFutWCukm6J24wbPWRO4k1kMY7gS7ds/uoJkNuV8wDCtWWnuwGcJwpWcih+zEW1Q==}
@@ -5705,6 +5711,8 @@ snapshots:
       path-type: 4.0.0
     optionalDependencies:
       typescript: 5.8.3
+
+  cp@0.2.0: {}
 
   create-jest@29.7.0(@types/node@22.15.34)(ts-node@10.9.2(@swc/core@1.12.7)(@types/node@22.15.34)(typescript@5.8.3)):
     dependencies:

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fresh Cart API</title>
+    <title>FreshCart API</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -107,9 +107,13 @@
   </head>
   <body>
     <div class="container">
-      <div class="emoji">📦🗃️📊</div>
-      <h1>Welcome to Inventory Management API</h1>
-      <p>Explore the available endpoints and user roles below.</p>
+      <div class="emoji">🛒🥦📦</div>
+      <h1>Welcome to FreshCart Backend API</h1>
+      <p>
+        This is the backend API for the FreshCart platform.<br>
+        Manage products, categories, orders, stores, users, deliveries, payments, and more.<br>
+        Explore the available endpoints and user roles below.
+      </p>
     </div>
     
     <a class="swagger-btn" href="/api/docs" target="_blank">View Swagger API Docs</a>
@@ -118,47 +122,37 @@
       <div class="role-card">
         <div class="role-title">Admin</div>
         <ul class="role-list">
-          <li>Manage users and roles</li>
-          <li>Manage all products, categories, suppliers, warehouses</li>
-          <li>View/manage all orders, transactions, reports</li>
-          <li>Set pricing, discounts, promotions</li>
-          <li>Full system access</li>
+          <li>Full access to all resources</li>
+          <li>Manage users, stores, products, categories</li>
+          <li>View and manage all orders and deliveries</li>
+          <li>Access analytics and reports</li>
+          <li>Verify and moderate stores</li>
         </ul>
       </div>
       <div class="role-card">
-        <div class="role-title">Manager</div>
+        <div class="role-title">Store Owner</div>
         <ul class="role-list">
-          <li>View/approve/reject orders</li>
-          <li>View sales & inventory reports</li>
-          <li>Oversee inventory & warehouse ops</li>
-          <li>Coordinate sales, warehouse, suppliers</li>
+          <li>Manage own store profile and products</li>
+          <li>View and process orders for their store</li>
+          <li>Track store analytics and revenue</li>
+          <li>Respond to customer feedback</li>
         </ul>
       </div>
       <div class="role-card">
-        <div class="role-title">Warehouse</div>
+        <div class="role-title">Customer</div>
         <ul class="role-list">
-          <li>View/update inventory levels</li>
-          <li>Manage product storage & stock</li>
-          <li>Process shipments & orders</li>
-          <li>Track inventory across warehouses</li>
+          <li>Browse and search products</li>
+          <li>Place and track orders</li>
+          <li>Submit feedback and rate stores/products</li>
+          <li>Manage personal profile and addresses</li>
         </ul>
       </div>
       <div class="role-card">
-        <div class="role-title">Sales</div>
+        <div class="role-title">Driver</div>
         <ul class="role-list">
-          <li>View products & inventory</li>
-          <li>Create/manage customer orders</li>
-          <li>Track order status</li>
-          <li>Shipping orders</li>
-        </ul>
-      </div>
-      <div class="role-card">
-        <div class="role-title">Supplier</div>
-        <ul class="role-list">
-          <li>View/update own product listings</li>
-          <li>Manage stock supplied to warehouse</li>
-          <li>View orders for their products</li>
-          <li>Update product availability & pricing</li>
+          <li>View assigned deliveries</li>
+          <li>Update delivery status</li>
+          <li>Access delivery directions</li>
         </ul>
       </div>
     </div>
