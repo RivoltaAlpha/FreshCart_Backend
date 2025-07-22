@@ -91,7 +91,7 @@ export class StoreService {
       // Step 3: Update the store with the address_id
       savedStore.address = savedAddress;
       const finalStore = await queryRunner.manager.save(savedStore);
-      
+
       await queryRunner.commitTransaction();
 
       const createdStore = await this.storeRepository.findOne({
@@ -274,7 +274,7 @@ export class StoreService {
     return store;
   }
 
-  // unverified stores 
+  // unverified stores
   async findUnverifiedStores(): Promise<Store[]> {
     return await this.storeRepository.find({
       where: { is_verified: false },
@@ -291,5 +291,97 @@ export class StoreService {
         },
       },
     });
+  }
+
+  //Store Analytics
+  // Total Stores (active, pending verification)
+  // Top Performing Stores (by revenue, order count)
+  // Store Revenue Breakdown (per store, per region)
+  // Store Order Volume (trends, per store)
+  // Store Onboarding Trends (new stores over time)
+
+  async getStoreAnalytics(): Promise<any> {
+    const totalStores = await this.storeRepository.count();
+    const verifiedStores = await this.storeRepository.count({
+      where: { is_verified: true },
+    });
+    const unverifiedStores = await this.storeRepository.count({
+      where: { is_verified: false },
+    });
+
+    // store with most orders |
+    const topPerformingStore = await this.storeRepository
+      .createQueryBuilder('store')
+      .leftJoin('store.orders', 'order')
+      .select([
+        'store.store_id',
+        'store.name',
+        'COUNT(order.order_id) as "orderCount"',
+      ])
+      .groupBy('store.store_id')
+      .addGroupBy('store.name')
+      .orderBy('"orderCount"', 'DESC')
+      .getRawOne();
+
+    if (!topPerformingStore) {
+      throw new NotFoundException('No stores found');
+    }
+
+    // Calculate total revenue per store
+    const storeRevenue = await this.storeRepository
+      .createQueryBuilder('store')
+      .leftJoin('store.orders', 'order')
+      .select([
+        'store.store_id',
+        'store.name',
+        'SUM(order.total_amount) as "totalRevenue"',
+      ])
+      .groupBy('store.store_id')
+      .addGroupBy('store.name')
+      .getRawMany();
+
+    if (!storeRevenue) {
+      throw new NotFoundException('No store revenue data found');
+    }
+
+    // trend of new stores over time
+    const newStoresTrend = await this.storeRepository
+      .createQueryBuilder('store')
+      .select(
+        "DATE_TRUNC('month', store.created_at) AS month, COUNT(store.store_id) AS storeCount",
+      )
+      .groupBy('month')
+      .orderBy('month', 'ASC')
+      .getRawMany();
+
+    if (!newStoresTrend) {
+      throw new NotFoundException('No new stores trend data found');
+    }
+
+    //Store Order Volume (trends, per store)
+    const storeOrderVolume = await this.storeRepository
+      .createQueryBuilder('store')
+      .leftJoin('store.orders', 'order')
+      .select([
+        'store.store_id',
+        'store.name',
+        "DATE_TRUNC('month', order.created_at) AS month",
+        'COUNT(order.order_id) AS orderCount',
+      ])
+      .groupBy('store.store_id')
+      .addGroupBy('store.name')
+      .addGroupBy('month')
+      .orderBy('month', 'ASC')
+      .getRawMany();
+
+    return {
+      totalStores,
+      verifiedStores,
+      unverifiedStores,
+      storeRevenue,
+      topPerformingStore,
+      newStoresTrend,
+      storeOrderVolume,
+    };
   }
 }

@@ -49,6 +49,13 @@ export class StoreController {
     return this.storeService.findByOwnerId(id);
   }
 
+  @Get('analytics')
+  @Public()
+  @ApiOperation({ summary: 'Get store analytics' })
+  getStoreAnalytics() {
+    return this.storeService.getStoreAnalytics();
+  }
+
   @Get('all')
   @Public()
   @ApiOperation({ summary: 'Get all stores' })
@@ -75,14 +82,7 @@ export class StoreController {
     return this.storeService.findByLocation(city, state);
   }
 
-  @Get(':id')
-  @Public()
-  @ApiOperation({ summary: 'Get store by ID' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.storeService.findOne(id);
-  }
-
-  @Post(':id/rate')
+  @Post('rate/:id')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Rate a store' })
   rateStore(
@@ -98,6 +98,13 @@ export class StoreController {
   @ApiOperation({ summary: 'Verify store' })
   verifyStore(@Param('store_id', ParseIntPipe) storeId: number) {
     return this.storeService.verifyStore(storeId);
+  }
+
+  @Get(':id')
+  @Public()
+  @ApiOperation({ summary: 'Get store by ID' })
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.storeService.findOne(id);
   }
 
   @Patch(':id')
