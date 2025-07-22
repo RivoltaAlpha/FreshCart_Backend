@@ -509,10 +509,15 @@ export class ProductsService {
     // most ordered products
     const topProducts = await this.orderItemRepository
       .createQueryBuilder('orderItem')
-      .select('orderItem.product_id', 'product_id')
-      .addSelect('SUM(orderItem.quantity)', 'totalQuantity')
+      .leftJoin('orderItem.product', 'product') 
+      .select([
+        'orderItem.product_id AS product_id',
+        'product.name AS product_name',
+        'SUM(orderItem.quantity) AS totalQuantity',
+      ])
       .groupBy('orderItem.product_id')
-      .orderBy('"totalQuantity"', 'DESC')
+      .addGroupBy('product.name')
+      .orderBy('totalQuantity', 'DESC')
       .limit(10)
       .getRawMany();
 
