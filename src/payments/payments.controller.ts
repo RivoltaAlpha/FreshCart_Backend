@@ -38,6 +38,13 @@ export class PaymentsController {
     return this.paymentsService.verifyTransaction(reference);
   }
 
+  // user payments
+  @Get('user/:userId')
+  @Roles(Role.Customer, Role.Admin, Role.Store)
+  findUserPayments(@Param('userId') userId: number) {
+    return this.paymentsService.findUserPayments(userId);
+  }
+
   @Get()
   @Roles(Role.Customer, Role.Admin, Role.Store)
   findAll() {

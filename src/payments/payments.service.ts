@@ -274,6 +274,13 @@ export class PaymentsService {
 
     return `${prefix}${sequence.toString().padStart(4, '0')}`;
   }
+
+  // user payments
+  async findUserPayments(userId: number) {
+    return this.paymentsRepository.find({ where: { user_id: userId } });
+  }
+
+  // 
 }
 
 export type { VerifyResponse, FetchTransactionResponse };
