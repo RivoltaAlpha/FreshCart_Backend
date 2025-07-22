@@ -11,6 +11,7 @@ import { Product } from './entities/product.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Store } from 'src/store/entities/store.entity';
 import { Inventory } from 'src/inventories/entities/inventory.entity';
+import { OrderItem } from 'src/order-item/entities/order-item.entity';
 
 @Injectable()
 export class ProductsService {
@@ -26,6 +27,9 @@ export class ProductsService {
 
     @InjectRepository(Inventory)
     private inventoryRepository: Repository<Inventory>,
+
+    @InjectRepository(OrderItem)
+    private orderItemRepository: Repository<OrderItem>,
 
     private dataSource: DataSource,
   ) {}
@@ -445,15 +449,15 @@ export class ProductsService {
     });
   }
 
-async searchProductsByName(name: string): Promise<Product[]> {
-  if (!name || name.trim() === '') {
-    return [];
-    // Or: return this.findAll();
+  async searchProductsByName(name: string): Promise<Product[]> {
+    if (!name || name.trim() === '') {
+      return [];
+      // Or: return this.findAll();
+    }
+    return this.productsRepository.find({
+      where: { name: Like(`%${name}%`) },
+    });
   }
-  return this.productsRepository.find({
-    where: { name: Like(`%${name}%`) },
-  });
-}
 
   //search all products
   async searchAllProducts(query: string): Promise<Product[]> {
@@ -470,5 +474,52 @@ async searchProductsByName(name: string): Promise<Product[]> {
         name: Like(`%${query}%`),
       },
     });
+  }
+
+  //all Products Analytics
+  async getAllProductsAnalytics(): Promise<any> {
+    // Top Categories (by sales, by order count)
+    const topCategories = await this.categoryRepository
+      .createQueryBuilder('category')
+      .leftJoinAndSelect('category.products', 'product')
+      .leftJoinAndSelect('product.inventory', 'inventory')
+      .select([
+        'category.category_id',
+        'category.name',
+        'SUM(inventory.stock_qty) AS total_sales',
+      ])
+      .groupBy('category.category_id')
+      .orderBy('total_sales', 'DESC')
+      .limit(4)
+      .getRawMany();
+
+    const productRatings = await this.productsRepository
+      .createQueryBuilder('product')
+      .select([
+        'product.product_id',
+        'product.name',
+        'AVG(product.rating) AS average_rating',
+        'COUNT(product.review_count) AS review_count',
+      ])
+      .groupBy('product.product_id')
+      .orderBy('average_rating', 'DESC')
+      .limit(5)
+      .getRawMany();
+
+    // most ordered products
+    const topProducts = await this.orderItemRepository
+      .createQueryBuilder('orderItem')
+      .select('orderItem.product_id', 'product_id')
+      .addSelect('SUM(orderItem.quantity)', 'totalQuantity')
+      .groupBy('orderItem.product_id')
+      .orderBy('"totalQuantity"', 'DESC')
+      .limit(10)
+      .getRawMany();
+
+    return {
+      topCategories,
+      productRatings,
+      topProducts,
+    };
   }
 }

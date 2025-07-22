@@ -32,6 +32,12 @@ export class ProductsController {
     return this.productsService.create(createProductDto);
   }
 
+  @Get('analytics')
+  @Public()
+  async getProductAnalytics() {
+    return this.productsService.getAllProductsAnalytics();
+  }
+
   @Get('all')
   @Public()
   findAll() {
