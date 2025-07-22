@@ -140,7 +140,6 @@ export class Order {
   })
   items: OrderItem[];
 
-  @OneToMany(() => Feedback, (feedback) => feedback.order,
-    { cascade: true, onDelete: 'CASCADE' })
+  @OneToMany(() => Feedback, (feedback) => feedback.order)
   feedbacks: Feedback[];
 }

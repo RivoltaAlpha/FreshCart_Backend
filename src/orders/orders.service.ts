@@ -23,7 +23,7 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
-    private readonly logger = new Logger(OrdersService.name);
+  private readonly logger = new Logger(OrdersService.name);
 
   constructor(
     @InjectRepository(Order)
@@ -494,7 +494,10 @@ export class OrdersService {
   }
 
   // update order details
-  async update(orderId: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
+  async update(
+    orderId: number,
+    updateOrderDto: UpdateOrderDto,
+  ): Promise<Order> {
     const order = await this.findOne(orderId);
 
     // Update order details
@@ -504,14 +507,69 @@ export class OrdersService {
     return this.findOne(orderId);
   }
 
-    // get user ordered products
-  async getUserOrderedProducts(userId: number) : Promise<Product[]> {
+  // get user ordered products
+  async getUserOrderedProducts(userId: number): Promise<Product[]> {
     const orders = await this.ordersRepository.find({
       where: { user_id: userId, status: OrderStatus.CONFIRMED },
       relations: ['items', 'items.product'],
     });
 
-    const products = orders.flatMap(order => order.items.map(item => item.product));
-    return Array.from(new Set(products)); 
+    const products = orders.flatMap((order) =>
+      order.items.map((item) => item.product),
+    );
+    return Array.from(new Set(products));
+  }
+
+  //   Order Analytics
+  async getOrderAnalytics(): Promise<any> {
+    const totalOrders = await this.ordersRepository.count();
+    const pendingOrders = await this.ordersRepository.count({
+      where: { status: OrderStatus.PENDING },
+    });
+    const confirmedOrders = await this.ordersRepository.count({
+      where: { status: OrderStatus.CONFIRMED },
+    });
+    const preparingOrders = await this.ordersRepository.count({
+      where: { status: OrderStatus.PREPARING },
+    });
+    const readyForPickupOrders = await this.ordersRepository.count({
+      where: { status: OrderStatus.READY_FOR_PICKUP },
+    });
+    const inTransitOrders = await this.ordersRepository.count({
+      where: { status: OrderStatus.IN_TRANSIT },
+    });
+    const deliveredOrders = await this.ordersRepository.count({
+      where: { status: OrderStatus.DELIVERED },
+    });
+    const cancelledOrders = await this.ordersRepository.count({
+      where: { status: OrderStatus.CANCELLED },
+    });
+
+    const averageOrderValue = await this.ordersRepository
+      .createQueryBuilder('order')
+      .select('AVG(order.total_amount)', 'average')
+      .getRawOne();
+
+    // Order Trends Over Time (monthly)
+    const monthlyTrends = await this.ordersRepository
+      .createQueryBuilder('order')
+      .select("DATE_TRUNC('month', order.created_at)", 'month')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('month')
+      .orderBy('month', 'ASC')
+      .getRawMany();
+
+    return {
+      total_orders: totalOrders,
+      pending_orders: pendingOrders,
+      confirmed_orders: confirmedOrders,
+      delivered_orders: deliveredOrders,
+      cancelled_orders: cancelledOrders,
+      preparing_orders: preparingOrders,
+      ready_for_pickup_orders: readyForPickupOrders,
+      in_transit_orders: inTransitOrders,
+      average_order_value: parseFloat(averageOrderValue.average || '0'),
+      monthly_trends: monthlyTrends,
+    };
   }
 }

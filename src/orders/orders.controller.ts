@@ -22,6 +22,13 @@ export class OrdersController {
     return this.ordersService.getUserOrderedProducts(userId);
   }
 
+  // order analytics
+  @Get('analytics')
+  @Public() 
+  getOrderAnalytics() {
+    return this.ordersService.getOrderAnalytics();
+  }
+
   @Post('create')
   @Roles(Role.Customer, Role.Store, Role.Admin, Role.Driver)
   create(@Body() createOrderDto: CreateOrderDto) {
