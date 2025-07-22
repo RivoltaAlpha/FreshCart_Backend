@@ -14,6 +14,7 @@ import { Inventory } from '../inventories/entities/inventory.entity';
 import { Payment } from 'src/payments/entities/payment.entity';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
 import { Delivery } from 'src/deliveries/entities/delivery.entity';
+import { Feedback } from 'src/feedback/entities/feedback.entity';
 
 // Load Environment Variables
 config({
@@ -55,6 +56,7 @@ const dbProvider = {
           Payment,
           OrderItem,
           Delivery,
+          Feedback,
         ],
         synchronize: configService.getOrThrow<boolean>('DB_SYNC', true),
         logging: configService.getOrThrow<boolean>('DB_LOGGING', false),

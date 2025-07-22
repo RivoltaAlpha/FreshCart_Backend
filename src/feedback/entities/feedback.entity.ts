@@ -1,9 +1,9 @@
 import { Order } from "src/orders/entities/order.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 
+@Entity()
 export class Feedback {
-
     @Column({ type: 'int', primary: true, generated: true })
     feedback_id: number;
 
@@ -27,6 +27,4 @@ export class Feedback {
     @ManyToOne(() => Order, order => order.feedbacks)
     @JoinColumn({ name: 'order_id' })
     order: Order;
-
-
 }
