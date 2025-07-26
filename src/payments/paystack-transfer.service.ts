@@ -2,19 +2,20 @@
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
-import { firstValueFrom } from 'rxjs';
 
 // DTOs for type safety
 export class CreateTransferRecipientDto {
-  type: 'nuban' | 'mobile_money' | 'basa';
+  type: 'mobile_money';
   name: string;
   account_number: string;
-  bank_code: string;
-  currency?: string;
-  description?: string;
+  bank_code: 'MPESA';
+  currency?: 'KES';
   authorization_code?: string;
   metadata?: Record<string, any>;
 }
+
+// An authorization code is returned after a successful card payment by a customer. Combining the authorization code with the email address used for payment, you can create a transfer recipient:
+
 
 export class BulkCreateTransferRecipientDto {
   batch: CreateTransferRecipientDto[];
@@ -76,7 +77,7 @@ export interface VendorPaymentData {
   amount: number;
 }
 
-export interface DoctorPaymentData {
+export interface driverPaymentData {
   name: string;
   accountNumber: string;
   bankCode: string;
@@ -233,14 +234,14 @@ export class PaystackTransferService {
 
   async processDeliveryPayments(
     vendorData: VendorPaymentData,
-    doctorData: DoctorPaymentData,
+    driverData: driverPaymentData,
     orderId: string,
     deliveryId?: string,
   ): Promise<{
     vendorTransfer: any;
-    doctorTransfer: any;
+    driverTransfer: any;
     totalAmount: number;
-    references: { vendor: string; doctor: string };
+    references: { vendor: string; driver: string };
   }> {
     try {
       this.logger.log(`Processing delivery payments for order ${orderId}`);
@@ -263,15 +264,15 @@ export class PaystackTransferService {
           },
           {
             type: 'mobile_money',
-            name: doctorData.name,
-            account_number: doctorData.accountNumber,
-            bank_code: doctorData.bankCode,
+            name: driverData.name,
+            account_number: driverData.accountNumber,
+            bank_code: driverData.bankCode,
             currency: 'KES',
-            description: `Doctor payment for order ${orderId}`,
+            description: `Driver payment for order ${orderId}`,
             metadata: {
               order_id: orderId,
               delivery_id: deliveryId,
-              recipient_type: 'doctor',
+              recipient_type: 'driver',
             },
           },
         ],
@@ -287,11 +288,11 @@ export class PaystackTransferService {
       }
 
       const vendorRecipientCode = successfulRecipients[0].recipient_code;
-      const doctorRecipientCode = successfulRecipients[1].recipient_code;
+      const driverRecipientCode = successfulRecipients[1].recipient_code;
 
       // Generate unique references
       const vendorReference = `vendor_${orderId}_${Date.now()}`;
-      const doctorReference = `doctor_${orderId}_${Date.now()}`;
+      const driverReference = `driver_${orderId}_${Date.now()}`;
 
       // Step 2: Initiate bulk transfer
       const transfers = await this.initiateBulkTransfer({
@@ -305,15 +306,15 @@ export class PaystackTransferService {
             reference: vendorReference,
           },
           {
-            amount: doctorData.amount * 100, // Convert to kobo/cents
-            recipient: doctorRecipientCode,
-            reason: `Doctor payment for order ${orderId}`,
-            reference: doctorReference,
+            amount: driverData.amount * 100, // Convert to kobo/cents
+            recipient: driverRecipientCode,
+            reason: `Driver payment for order ${orderId}`,
+            reference: driverReference,
           },
         ],
       });
 
-      const totalAmount = vendorData.amount + doctorData.amount;
+      const totalAmount = vendorData.amount + driverData.amount;
 
       this.logger.log(
         `Delivery payments processed successfully for order ${orderId}. Total: KES ${totalAmount}`,
@@ -321,11 +322,11 @@ export class PaystackTransferService {
 
       return {
         vendorTransfer: transfers[0],
-        doctorTransfer: transfers[1],
+        driverTransfer: transfers[1],
         totalAmount,
         references: {
           vendor: vendorReference,
-          doctor: doctorReference,
+          driver: driverReference,
         },
       };
     } catch (error) {
