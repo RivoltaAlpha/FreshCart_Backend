@@ -1,107 +1,42 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  Param,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
-import {
-  TransfersService,
-  CreateTransferRecipientDto,
-  BulkCreateTransferRecipientDto,
-  BulkTransferDto,
-} from './transfers.service';
+import { Controller, Post, Body, Param, Get } from '@nestjs/common';
+import { TransfersService, PaymentParticipant } from './transfers.service';
+import { Roles } from 'src/auth/decorators/role.decorators';
+import { Role } from 'src/users/entities/user.entity';
 
-// Additional DTOs for controller endpoints
-export class PayVendorAndDoctorDto {
-  vendorData: {
-    name: string;
-    accountNumber: string;
-    bankCode: string;
-    amount: number;
-  };
-  doctorData: {
-    name: string;
-    accountNumber: string;
-    bankCode: string;
-    amount: number;
-  };
-  orderId: string;
-}
-
-export class FinalizeTransferDto {
-  transferCode: string;
-  otp: string;
-}
-
-@ApiTags('Paystack Transfers')
-@Controller('paystack/transfers')
+@Controller('transfers')
 export class TransfersController {
   constructor(private readonly transfersService: TransfersService) {}
 
-  @Post('recipients')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a transfer recipient' })
-  @ApiBody({ type: CreateTransferRecipientDto })
-  @ApiResponse({ status: 201, description: 'Transfer recipient created successfully' })
-  async createTransferRecipient(@Body() createRecipientDto: CreateTransferRecipientDto) {
-    return this.transfersService.createTransferRecipient(createRecipientDto);
+  // Test endpoint to trigger payment transfer manually
+  @Post('pay')
+  @Roles(Role.Admin)
+  async pay(@Body() body: {
+    order_id: number;
+    delivery_id: number;
+    store: PaymentParticipant;
+    driver: PaymentParticipant;
+  }) {
+    return this.transfersService.processDeliveryPayments(body);
   }
 
-  @Post('recipients/bulk')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Bulk create transfer recipients' })
-  @ApiBody({ type: BulkCreateTransferRecipientDto })
-  @ApiResponse({ status: 201, description: 'Transfer recipients created successfully' })
-  async bulkCreateTransferRecipients(@Body() bulkCreateDto: BulkCreateTransferRecipientDto) {
-    return this.transfersService.bulkCreateTransferRecipients(bulkCreateDto);
+  // Get all transfers for an order
+  @Get('order/:order_id')
+  @Roles(Role.Admin)
+  async getTransfersByOrder(@Param('order_id') order_id: number) {
+    return this.transfersService.getTransfersByOrder_id(Number(order_id));
   }
 
-//   @Get('recipients')
-//   @ApiOperation({ summary: 'Get all transfer recipients' })
-//   @ApiResponse({ status: 200, description: 'Transfer recipients retrieved successfully' })
-//   async getTransferRecipients(
-//     @Query('page') page: number = 1,
-//     @Query('perPage') perPage: number = 50,
-//   ) {
-//     return this.TransfersService.getTransferRecipients(page, perPage);
-//   }
-
-//   @Get('recipients/:idOrCode')
-//   @ApiOperation({ summary: 'Get a transfer recipient by ID or code' })
-//   @ApiResponse({ status: 200, description: 'Transfer recipient retrieved successfully' })
-//   async getTransferRecipient(@Param('idOrCode') idOrCode: string) {
-//     return this.TransfersService.getTransferRecipient(idOrCode);
-//   }
-
-  @Post('initiate/bulk')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Initiate bulk transfers' })
-  @ApiBody({ type: BulkTransferDto })
-  @ApiResponse({ status: 200, description: 'Bulk transfer initiated successfully' })
-  async initiateBulkTransfer(@Body() bulkTransferDto: BulkTransferDto) {
-    return this.transfersService.initiateBulkTransfer(bulkTransferDto);
+  // Get all transfers for a delivery
+  @Get('delivery/:delivery_id')
+  @Roles(Role.Admin)
+  async getTransfersByDelivery(@Param('delivery_id') delivery_id: number) {
+    return this.transfersService.getTransfersByDelivery_id(Number(delivery_id));
   }
 
-  @Get('verify/:reference')
-  @ApiOperation({ summary: 'Verify transfer status' })
-  @ApiResponse({ status: 200, description: 'Transfer status retrieved successfully' })
-  async verifyTransfer(@Param('reference') reference: string) {
-    return this.transfersService.verifyTransfer(reference);
-  }
-
-  @Post('finalize')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Finalize transfer with OTP' })
-  @ApiBody({ type: FinalizeTransferDto })
-  @ApiResponse({ status: 200, description: 'Transfer finalized successfully' })
-  async finalizeTransfer(@Body() finalizeDto: FinalizeTransferDto) {
-    return this.transfersService.finalizeTransfer(
-      finalizeDto.transferCode,
-      finalizeDto.otp,
-    );
+  // Manually verify a transfer status
+  @Post('verify/:reference')
+  @Roles(Role.Admin)
+  async verify(@Param('reference') reference: string) {
+    return this.transfersService.verifyAndUpdateTransferStatus(reference);
   }
 }
