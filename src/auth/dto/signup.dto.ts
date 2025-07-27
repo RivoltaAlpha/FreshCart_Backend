@@ -42,6 +42,11 @@ export class CreateAuthDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
+  account_number?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
   town?: string;
 
   @ApiProperty()
