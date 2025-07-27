@@ -9,6 +9,7 @@ import { Payment } from 'src/payments/entities/payment.entity';
 import { Profile } from 'src/profile/entities/profile.entity';
 import { Address } from 'src/addresses/entities/address.entity';
 import { Order } from 'src/orders/entities/order.entity';
+import { Transfer } from './entities/transfer.entity';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { Order } from 'src/orders/entities/order.entity';
       Profile,
       Address,
       Order,
+      Transfer,
     ]),
   ],
   controllers: [TransfersController],
