@@ -4,18 +4,16 @@ import {
   Get,
   Body,
   Param,
-  Query,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import {
-  PaystackTransferService,
+  TransfersService,
   CreateTransferRecipientDto,
   BulkCreateTransferRecipientDto,
-  InitiateTransferDto,
   BulkTransferDto,
-} from './paystack-transfer.service';
+} from './transfers.service';
 
 // Additional DTOs for controller endpoints
 export class PayVendorAndDoctorDto {
@@ -41,8 +39,8 @@ export class FinalizeTransferDto {
 
 @ApiTags('Paystack Transfers')
 @Controller('paystack/transfers')
-export class PaystackTransferController {
-  constructor(private readonly paystackTransferService: PaystackTransferService) {}
+export class TransfersController {
+  constructor(private readonly transfersService: TransfersService) {}
 
   @Post('recipients')
   @HttpCode(HttpStatus.CREATED)
@@ -50,7 +48,7 @@ export class PaystackTransferController {
   @ApiBody({ type: CreateTransferRecipientDto })
   @ApiResponse({ status: 201, description: 'Transfer recipient created successfully' })
   async createTransferRecipient(@Body() createRecipientDto: CreateTransferRecipientDto) {
-    return this.paystackTransferService.createTransferRecipient(createRecipientDto);
+    return this.transfersService.createTransferRecipient(createRecipientDto);
   }
 
   @Post('recipients/bulk')
@@ -59,7 +57,7 @@ export class PaystackTransferController {
   @ApiBody({ type: BulkCreateTransferRecipientDto })
   @ApiResponse({ status: 201, description: 'Transfer recipients created successfully' })
   async bulkCreateTransferRecipients(@Body() bulkCreateDto: BulkCreateTransferRecipientDto) {
-    return this.paystackTransferService.bulkCreateTransferRecipients(bulkCreateDto);
+    return this.transfersService.bulkCreateTransferRecipients(bulkCreateDto);
   }
 
 //   @Get('recipients')
@@ -69,14 +67,14 @@ export class PaystackTransferController {
 //     @Query('page') page: number = 1,
 //     @Query('perPage') perPage: number = 50,
 //   ) {
-//     return this.paystackTransferService.getTransferRecipients(page, perPage);
+//     return this.TransfersService.getTransferRecipients(page, perPage);
 //   }
 
 //   @Get('recipients/:idOrCode')
 //   @ApiOperation({ summary: 'Get a transfer recipient by ID or code' })
 //   @ApiResponse({ status: 200, description: 'Transfer recipient retrieved successfully' })
 //   async getTransferRecipient(@Param('idOrCode') idOrCode: string) {
-//     return this.paystackTransferService.getTransferRecipient(idOrCode);
+//     return this.TransfersService.getTransferRecipient(idOrCode);
 //   }
 
   @Post('initiate/bulk')
@@ -85,14 +83,14 @@ export class PaystackTransferController {
   @ApiBody({ type: BulkTransferDto })
   @ApiResponse({ status: 200, description: 'Bulk transfer initiated successfully' })
   async initiateBulkTransfer(@Body() bulkTransferDto: BulkTransferDto) {
-    return this.paystackTransferService.initiateBulkTransfer(bulkTransferDto);
+    return this.transfersService.initiateBulkTransfer(bulkTransferDto);
   }
 
   @Get('verify/:reference')
   @ApiOperation({ summary: 'Verify transfer status' })
   @ApiResponse({ status: 200, description: 'Transfer status retrieved successfully' })
   async verifyTransfer(@Param('reference') reference: string) {
-    return this.paystackTransferService.verifyTransfer(reference);
+    return this.transfersService.verifyTransfer(reference);
   }
 
   @Post('finalize')
@@ -101,7 +99,7 @@ export class PaystackTransferController {
   @ApiBody({ type: FinalizeTransferDto })
   @ApiResponse({ status: 200, description: 'Transfer finalized successfully' })
   async finalizeTransfer(@Body() finalizeDto: FinalizeTransferDto) {
-    return this.paystackTransferService.finalizeTransfer(
+    return this.transfersService.finalizeTransfer(
       finalizeDto.transferCode,
       finalizeDto.otp,
     );
