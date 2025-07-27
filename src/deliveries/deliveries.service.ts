@@ -500,29 +500,4 @@ export class DeliveriesService {
     await this.deliveriesRepository.remove(delivery);
     return { message: `Delivery ${id} has been removed` };
   }
-
-  // In your delivery service
-async completeDelivery(orderId: string, vendorData: any, driverData: any) {
-  try {
-    const result = await this.paystackTransferService.payVendorAndDriver(
-      {
-        name: 'Store Vendor',
-        accountNumber: '0701234567', // Mobile money number
-        bankCode: 'SFB', // Safaricom bank code for M-Pesa
-        amount: 1000, // Amount in KES
-      },
-      {
-        name: 'Dr. Smith',
-        accountNumber: '0712345678',
-        bankCode: 'SFB',
-        amount: 500,
-      },
-      orderId
-    );
-    
-    console.log('Payments processed:', result);
-  } catch (error) {
-    console.error('Payment failed:', error);
-  }
-}
 }
