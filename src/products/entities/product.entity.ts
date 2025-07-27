@@ -1,4 +1,5 @@
 import { Category } from 'src/categories/entities/category.entity';
+import { Feedback } from 'src/feedback/entities/feedback.entity';
 import { Inventory } from 'src/inventories/entities/inventory.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import {
@@ -7,6 +8,7 @@ import {
   JoinColumn,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
@@ -75,6 +77,9 @@ export class Product {
   
   @ManyToMany(() => Inventory, (inventory) => inventory.products)
   inventory: Inventory[];
+
+  @OneToMany(() => Feedback, (feedback) => feedback.product)
+  feedbacks: Feedback[];
 
   // Helper method to get stores that sell this product
   getStores?(): Promise<any[]> {

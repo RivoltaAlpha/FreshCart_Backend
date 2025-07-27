@@ -17,4 +17,8 @@ export class CreateFeedbackDto {
     @ApiProperty()
     @IsNumber()
     order_id: number;
+
+    @ApiProperty()
+    @IsNumber()
+    product_id: number;
 }
