@@ -9,7 +9,6 @@ import { Delivery, DeliveryStatus } from './entities/delivery.entity';
 import { Store } from 'src/store/entities/store.entity';
 import { Payment, PaymentStatus } from 'src/payments/entities/payment.entity';
 import axios from 'axios';
-import { PaystackTransferService } from 'src/payments/paystack-transfer.service';
 
 interface RouteInfo {
   coordinates: number[][];
@@ -35,7 +34,6 @@ export class DeliveriesService {
     private storesRepository: Repository<Store>,
     @InjectRepository(Payment)
     private paymentsRepository: Repository<Payment>,
-    private paystackTransferService: PaystackTransferService,
   ) {}
 
   async create(createDeliveryDto: CreateDeliveryDto) {
@@ -66,10 +64,13 @@ export class DeliveriesService {
     return await this.usersRepository.find({
       where: {
         role: Role.Driver,
+        is_available: true,
+        is_active: true,
       },
       relations: ['profile', 'profile.addresses'],
     });
   }
+  // 3. Get coordinates from order delivery address
 
   async getCoordinatesFromAddress(
     userId: number,
@@ -363,6 +364,16 @@ export class DeliveriesService {
         status: OrderStatus.IN_TRANSIT,
       });
 
+      // update driver to is available == false
+      assignedDriver.is_available = false;
+      const driver = await this.usersRepository.findOne({
+        where: { user_id: assignedDriver.user_id },
+      });
+      if (driver) {
+        driver.is_available = false;
+        await this.usersRepository.save(driver);
+      }
+
       this.logger.log(`Finished delivery workflow for order ${orderId}`);
       // Return complete delivery information
       return {
@@ -449,6 +460,14 @@ export class DeliveriesService {
 
     if (status === DeliveryStatus.DELIVERED) {
       delivery.delivered_at = new Date();
+      // update driver to is available == true
+      const driver = await this.usersRepository.findOne({
+        where: { user_id: delivery.driver_id },
+      });
+      if (driver) {
+        driver.is_available = true;
+        await this.usersRepository.save(driver);
+      }
 
       // Update order status
       await this.ordersRepository.update(delivery.order_id, {
@@ -456,13 +475,19 @@ export class DeliveriesService {
         delivered_at: new Date(),
       });
     }
-
     return await this.deliveriesRepository.save(delivery);
   }
 
   findAll() {
     return this.deliveriesRepository.find({
-      relations: ['order', 'driver', 'driver.profile', 'user', 'user.profile', 'user.profile.addresses'],
+      relations: [
+        'order',
+        'driver',
+        'driver.profile',
+        'user',
+        'user.profile',
+        'user.profile.addresses',
+      ],
     });
   }
 
