@@ -39,17 +39,17 @@ export class TransfersListener {
 
       // Process the payments
       await this.transfersService.processDeliveryPayments({
-        orderId: payload.order_id,
+        order_id: payload.order_id,
         delivery_id: payload.delivery_id,
         store: {
-          id: payload.store_id,
-          email: storeData.email,
+          id: payload.store_id.toString(),
+          name: storeData.name,
           account_number: storeData.account_number,
           amount: payload.store_amount,
           participantType: 'store',
         },
         driver: {
-          id: payload.driver_id,
+          id: payload.driver_id.toString(),
           name: driverData.name,
           account_number: driverData.account_number,
           amount: payload.driver_amount,
