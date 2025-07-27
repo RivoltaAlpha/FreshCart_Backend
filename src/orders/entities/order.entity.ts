@@ -147,6 +147,5 @@ export class Order {
 
   // deliveries
   @OneToOne(() => Delivery, (delivery) => delivery.order)
-  @JoinColumn({ name: 'order_id' })
   delivery: Delivery;
 }
