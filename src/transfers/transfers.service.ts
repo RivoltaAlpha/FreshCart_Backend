@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  HttpException,
-  HttpStatus,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import axios from 'axios';
@@ -243,7 +238,7 @@ export class TransfersService {
     } catch (error) {
       this.logger.error(
         'Error creating transfer recipients:',
-        error.response?.data || error.message,
+        JSON.stringify(error.response?.data, null, 2) || error.message,
       );
       throw new HttpException(
         error.response?.data?.message || 'Failed to create transfer recipients',
@@ -315,8 +310,8 @@ export class TransfersService {
       };
     } catch (error) {
       this.logger.error(
-        'Error executing bulk transfer:',
-        error.response?.data || error.message,
+        'Error creating transfer recipients:',
+        JSON.stringify(error.response?.data, null, 2) || error.message,
       );
       throw new HttpException(
         error.response?.data?.message || 'Failed to execute bulk transfer',
@@ -353,7 +348,12 @@ export class TransfersService {
 
       // Step 1: Create transfer recipients
       const { storeRecipientCode, driverRecipientCode } =
-        await this.createTransferRecipients(store, driver, order_id, delivery_id);
+        await this.createTransferRecipients(
+          store,
+          driver,
+          order_id,
+          delivery_id,
+        );
 
       // Step 2: Execute bulk transfer
       const transferResult = await this.executeBulkTransfer(

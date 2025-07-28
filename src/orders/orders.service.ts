@@ -320,15 +320,15 @@ export class OrdersService {
         break;
       case OrderStatus.DELIVERED:
         updateData.delivered_at = new Date();
-        this.logger.log(`Emitting order.payment.transfer for order ${order_id}`);
-        this.eventEmitter.emit('order.payment.transfer', {
-          order_id: order_id,
-          delivery_id: order.delivery.delivery_id,
-          store_id: order.store_id,
-          driver_id: order.driver_id,
-          store_amount: order.total_amount - order.delivery_fee - order.tax_amount,
-          driver_amount: order.delivery_fee,
-        });
+        // this.logger.log(`Emitting order.payment.transfer for order ${order_id}`);
+        // this.eventEmitter.emit('order.payment.transfer', {
+        //   order_id: order_id,
+        //   delivery_id: order.delivery.delivery_id,
+        //   store_id: order.store_id,
+        //   driver_id: order.driver_id,
+        //   store_amount: order.total_amount - order.delivery_fee - order.tax_amount,
+        //   driver_amount: order.delivery_fee,
+        // });
         break;
       case OrderStatus.CANCELLED:
         updateData.cancelled_at = new Date();
