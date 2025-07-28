@@ -198,6 +198,9 @@ export class AuthService {
           email: true,
           role: true,
           password: true,
+          is_active: true,
+          account_number: true,
+          is_available: true,
           profile: {
             profile_id: true,
             first_name: true,
