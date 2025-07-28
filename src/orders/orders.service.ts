@@ -20,6 +20,7 @@ import { InventoriesService } from 'src/inventories/inventories.service';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { In } from 'typeorm';
 
 @Injectable()
 export class OrdersService {
@@ -519,7 +520,16 @@ export class OrdersService {
   // get user ordered products
   async getUserOrderedProducts(userId: number): Promise<Product[]> {
     const orders = await this.ordersRepository.find({
-      where: { user_id: userId, status: OrderStatus.CONFIRMED },
+      where: {
+        user_id: userId,
+        status: In([
+          OrderStatus.CONFIRMED,
+          OrderStatus.DELIVERED,
+          OrderStatus.READY_FOR_PICKUP,
+          OrderStatus.IN_TRANSIT,
+          OrderStatus.PREPARING,
+        ]),
+      },
       relations: ['items', 'items.product'],
     });
 
