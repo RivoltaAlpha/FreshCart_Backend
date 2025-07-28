@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
-import { PaystackTransferService } from './paystack-transfer.service';
-import { PaystackTransferController } from './paystack-transfer.controller';
+import { TransfersService } from './transfers.service';
+import { TransfersController } from './transfers.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Delivery } from 'src/deliveries/entities/delivery.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Store } from 'src/store/entities/store.entity';
-import { Payment } from './entities/payment.entity';
+import { Payment } from 'src/payments/entities/payment.entity'; 
 import { Profile } from 'src/profile/entities/profile.entity';
 import { Address } from 'src/addresses/entities/address.entity';
 import { Order } from 'src/orders/entities/order.entity';
+import { Transfer } from './entities/transfer.entity';
 
 @Module({
   imports: [
@@ -20,11 +21,11 @@ import { Order } from 'src/orders/entities/order.entity';
       Profile,
       Address,
       Order,
+      Transfer,
     ]),
-    PaystackTransferModule, // <-- Import here
   ],
-  controllers: [PaystackTransferController],
-  providers: [PaystackTransferService],
-  exports: [PaystackTransferService],
+  controllers: [TransfersController],
+  providers: [TransfersService],
+  exports: [TransfersService],
 })
-export class PaystackTransferModule {}
+export class TransfersModule {}

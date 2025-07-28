@@ -58,4 +58,9 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsNumber()
   profile_id: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  account_number?: string;
 }

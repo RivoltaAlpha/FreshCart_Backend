@@ -50,6 +50,9 @@ export class Store {
   @Column({ type: 'boolean', default: false })
   is_verified: boolean;
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  account_number: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
   @Column({

@@ -135,6 +135,7 @@ export class AuthService {
         password: hashedPassword,
         role: createAuthDto.role as Role,
         profile_id: savedProfile.profile_id,
+        account_number: createAuthDto.account_number,
       });
 
       // generate tokens
@@ -156,6 +157,8 @@ export class AuthService {
           user_id: true,
           email: true,
           role: true,
+          password: false, 
+          account_number: true,
           profile: {
             profile_id: true,
             first_name: true,

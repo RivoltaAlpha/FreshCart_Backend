@@ -6,6 +6,7 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
@@ -15,6 +16,7 @@ import { Store } from 'src/store/entities/store.entity';
 import { Payment } from 'src/payments/entities/payment.entity';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
 import { Feedback } from 'src/feedback/entities/feedback.entity';
+import { Delivery } from 'src/deliveries/entities/delivery.entity';
 
 export enum OrderStatus {
   PENDING = 'pending',
@@ -76,7 +78,7 @@ export class Order {
   delivery_address: string;
 
   @Column({ type: 'text', nullable: true })
-  tax_amount: number
+  tax_amount: number;
 
   @Column({ type: 'int', nullable: true })
   driver_id?: number;
@@ -142,4 +144,8 @@ export class Order {
 
   @OneToMany(() => Feedback, (feedback) => feedback.order)
   feedbacks: Feedback[];
+
+  // deliveries
+  @OneToOne(() => Delivery, (delivery) => delivery.order)
+  delivery: Delivery;
 }
