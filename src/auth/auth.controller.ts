@@ -7,6 +7,8 @@ import { Public } from './decorators/public.decorator';
 import { Request } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/signin.dto';
+import { Roles } from './decorators/role.decorators';
+import { Role } from 'src/users/entities/user.entity';
 
 export interface RequestWithUser extends Request {
   user: {
@@ -35,7 +37,7 @@ export class AuthController {
   }
 
   @UseGuards(AtGuard) // This endpoint requires authentication and you use the access token guard
-  @Post('signout/:id')
+  @Roles(Role.Admin, Role.Customer, Role.Driver, Role.Store)
   signOut(@Param('id') id: number) {
     return this.authService.signOut(id);
   }
