@@ -91,5 +91,10 @@ export class CreateStoreDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
+  account_number?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   store_code?: string;
 }

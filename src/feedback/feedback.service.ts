@@ -16,8 +16,9 @@ async create(createFeedbackDto: CreateFeedbackDto) {
   const feedback = this.feedbackRepository.create({
     comment: createFeedbackDto.comment,
     rating: createFeedbackDto.rating,
-    user: { user_id: createFeedbackDto.user_id },   
-    order: { order_id: createFeedbackDto.order_id } 
+    user: { user_id: createFeedbackDto.user_id },
+    order: { order_id: createFeedbackDto.order_id },
+    product: { product_id: createFeedbackDto.product_id },
   });
   return this.feedbackRepository.save(feedback);
 }

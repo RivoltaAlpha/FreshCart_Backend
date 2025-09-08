@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToOne,
+} from 'typeorm';
 import { Order } from 'src/orders/entities/order.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Store } from 'src/store/entities/store.entity';
@@ -32,7 +39,11 @@ export class Delivery {
   @Column({ type: 'varchar', length: 500 })
   delivery_address: string;
 
-  @Column({ type: 'enum', enum: DeliveryStatus, default: DeliveryStatus.PENDING })
+  @Column({
+    type: 'enum',
+    enum: DeliveryStatus,
+    default: DeliveryStatus.PENDING,
+  })
   delivery_status: DeliveryStatus;
 
   @Column({ type: 'timestamp', nullable: true })
@@ -59,11 +70,15 @@ export class Delivery {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updated_at: Date;
 
   // Relationships
-  @ManyToOne(() => Order)
+  @OneToOne(() => Order, (order) => order.delivery)
   @JoinColumn({ name: 'order_id' })
   order: Order;
 

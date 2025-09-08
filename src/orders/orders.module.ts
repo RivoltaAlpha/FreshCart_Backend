@@ -10,9 +10,10 @@ import { OrderItem } from 'src/order-item/entities/order-item.entity';
 import { Inventory } from 'src/inventories/entities/inventory.entity';
 import { InventoriesModule } from 'src/inventories/inventories.module';
 import { Feedback } from 'src/feedback/entities/feedback.entity';
+import { Delivery } from 'src/deliveries/entities/delivery.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Product, User, Store, OrderItem, Inventory, Feedback]),
+  imports: [TypeOrmModule.forFeature([Order, Product, User, Store, OrderItem, Inventory, Feedback, Delivery]),
   InventoriesModule],
   controllers: [OrdersController],
   providers: [OrdersService],
