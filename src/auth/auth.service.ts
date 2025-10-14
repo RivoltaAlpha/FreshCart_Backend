@@ -70,27 +70,30 @@ export class AuthService {
     });
   }
 
-  private async generateTokens(userId: number, email: string, role: string) {
-    const accessToken = this.jwtService.sign(
-      { sub: userId, email: email, role: role },
-      {
-        secret: this.configService.getOrThrow<string>(
-          'JWT_ACCESS_TOKEN_SECRET',
+private async generateTokens(userId: number, email: string, role: string) {
+    const [accessToken, refreshToken] = await Promise.all([
+        this.jwtService.signAsync(
+            { sub: userId, email: email, role: role },
+            {
+                secret: this.configService.getOrThrow<string>(
+                    'JWT_ACCESS_TOKEN_SECRET',
+                ),
+                expiresIn: '1h',
+            },
         ),
-        expiresIn: '1h',
-      },
-    );
-    const refreshToken = this.jwtService.sign(
-      { sub: userId, email: email, role: role },
-      {
-        secret: this.configService.getOrThrow<string>(
-          'JWT_REFRESH_TOKEN_SECRET',
+        this.jwtService.signAsync(
+            { sub: userId, email: email, role: role },
+            {
+                secret: this.configService.getOrThrow<string>(
+                    'JWT_REFRESH_TOKEN_SECRET',
+                ),
+                expiresIn: '7d',
+            },
         ),
-        expiresIn: '7d',
-      },
-    );
+    ]);
+
     return { accessToken, refreshToken };
-  }
+}
 
   async SignUp(createAuthDto: CreateAuthDto) {
     const queryRunner = this.dataSource.createQueryRunner();
