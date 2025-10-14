@@ -31,7 +31,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addServer('http://localhost:8000', 'Local development server')
     .addServer(
-      'https://redeployedinventory-dnd8gmc3a2a0dzcw.southafricanorth-01.azurewebsites.net',
+      'https://fresh-cart-f8crduc8fjhzehaa.southafricanorth-01.azurewebsites.net/',
       'Production server',
     )
     .addBearerAuth(
