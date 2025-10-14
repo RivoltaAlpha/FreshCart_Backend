@@ -17,7 +17,7 @@ import { LoginDto } from './dto/signin.dto';
 import { Address } from 'src/addresses/entities/address.entity';
 
 interface JwtPayload {
-  sub: number;
+  sub: string;
   email: string;
   role: string;
 }
@@ -35,11 +35,10 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly dataSource: DataSource,
   ) {}
-  
 
   private async getTokens(userId: number, email: string, role: string) {
         const payload: JwtPayload = {
-        sub: userId,
+        sub: userId.toString(),
         email,
         role,
     };
@@ -85,7 +84,7 @@ export class AuthService {
 
 private async generateTokens(userId: number, email: string, role: string) {
     const payload: JwtPayload = {
-        sub: userId,
+        sub: userId.toString(),
         email,
         role,
     };
