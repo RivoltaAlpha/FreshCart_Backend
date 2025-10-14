@@ -16,6 +16,12 @@ import { Profile } from 'src/profile/entities/profile.entity';
 import { LoginDto } from './dto/signin.dto';
 import { Address } from 'src/addresses/entities/address.entity';
 
+interface JwtPayload {
+  sub: number;
+  email: string;
+  role: string;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -29,11 +35,17 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly dataSource: DataSource,
   ) {}
+  
 
   private async getTokens(userId: number, email: string, role: string) {
+        const payload: JwtPayload = {
+        sub: userId,
+        email,
+        role,
+    };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
-        { sub: userId, email: email, role: role },
+        payload,
         {
           secret: this.configService.getOrThrow<string>(
             'JWT_ACCESS_TOKEN_SECRET',
@@ -44,7 +56,7 @@ export class AuthService {
         },
       ),
       this.jwtService.signAsync(
-        { sub: userId, email: email, role: role },
+        payload,
         {
           secret: this.configService.getOrThrow<string>(
             'JWT_REFRESH_TOKEN_SECRET',
@@ -69,11 +81,17 @@ export class AuthService {
       hashedRefreshToken: hashedToken,
     });
   }
+  
 
 private async generateTokens(userId: number, email: string, role: string) {
+    const payload: JwtPayload = {
+        sub: userId,
+        email,
+        role,
+    };
     const [accessToken, refreshToken] = await Promise.all([
         this.jwtService.signAsync(
-            { sub: userId, email: email, role: role },
+            payload,
             {
                 secret: this.configService.getOrThrow<string>(
                     'JWT_ACCESS_TOKEN_SECRET',
@@ -82,7 +100,7 @@ private async generateTokens(userId: number, email: string, role: string) {
             },
         ),
         this.jwtService.signAsync(
-            { sub: userId, email: email, role: role },
+            payload,
             {
                 secret: this.configService.getOrThrow<string>(
                     'JWT_REFRESH_TOKEN_SECRET',
